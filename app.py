@@ -82,7 +82,7 @@ def login():
         if username in VIP_USERS and VIP_USERS[username] == password:
             session['logged_in'] = True
             session['username'] = username
-            return redirect('/')
+            return redirect('/index.html')
         else:
             error = "Invalid username or password!"
             
@@ -235,3 +235,4 @@ def static_proxy(path):
 if __name__ == '__main__':
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
