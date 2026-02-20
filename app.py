@@ -23,7 +23,7 @@ MIN_CONFIDENCE = 65
 # 👥 MÜŞTERİ VERİTABANI (Sadece bu listeye eklediğin kişiler sisteme girebilir)
 VIP_USERS = {
     "alpha576": "Ma-3007.1",        # Kendin için
-
+    "alen": "alen.123",
 }
 
 # 🎨 ŞIK GİRİŞ EKRANI TASARIMI (Müşterilerin göreceği ilk ekran)
@@ -237,6 +237,7 @@ def static_proxy(path):
 if __name__ == '__main__':
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
