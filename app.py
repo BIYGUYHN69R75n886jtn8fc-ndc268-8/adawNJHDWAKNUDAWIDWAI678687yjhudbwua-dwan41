@@ -12,8 +12,7 @@ app.secret_key = "grypto_super_gizli_anahtar_degistir_bunu_123"
 logging.basicConfig(level=logging.INFO)
 
 # 🔑 BURAYA API KEY 
-OPENAI_API_KEY = "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"
-client = OpenAI(api_key=OPENAI_API_KEY)
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 MIN_RR = 1.5       
 MIN_CONFIDENCE = 65 
@@ -235,4 +234,5 @@ def static_proxy(path):
 if __name__ == '__main__':
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
