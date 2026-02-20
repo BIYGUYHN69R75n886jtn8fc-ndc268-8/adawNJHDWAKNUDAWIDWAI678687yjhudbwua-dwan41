@@ -7,15 +7,18 @@ from openai import OpenAI
 print("ULTRA PRO QUANT ENGINE v5 (SaaS VIP Edition) is starting...")
 
 app = Flask(__name__, static_folder='static')
-# 🔐 GÜVENLİK ANAHTARI: Oturumların hacklenmemesi için buraya rastgele bir şeyler yaz.
+# 🔐 GÜVENLİK ANAHTARI
 app.secret_key = "grypto_super_gizli_anahtar_degistir_bunu_123" 
 logging.basicConfig(level=logging.INFO)
 
-# 🔑 BURAYA API KEY 
+# 🔑 API ANAHTARINI GÜVENLİ ŞEKİLDE ÇEKİYORUZ
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
+# 🚀 MOTORU ÇALIŞTIR (Yanlışlıkla sildiğin satır burasıydı!)
+client = OpenAI(api_key=OPENAI_API_KEY)
+
 MIN_RR = 1.5       
-MIN_CONFIDENCE = 65 
+MIN_CONFIDENCE = 65
 
 # 👥 MÜŞTERİ VERİTABANI (Sadece bu listeye eklediğin kişiler sisteme girebilir)
 VIP_USERS = {
@@ -234,5 +237,6 @@ def static_proxy(path):
 if __name__ == '__main__':
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
