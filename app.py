@@ -22,7 +22,7 @@ MIN_CONFIDENCE = 65
 
 # 👥 MÜŞTERİ VERİTABANI (Sadece bu listeye eklediğin kişiler sisteme girebilir)
 VIP_USERS = {
-    "admin": "admin123",        # Kendin için
+    "alpha576": "Ma-3007.1",        # Kendin için
 
 }
 
@@ -237,6 +237,7 @@ def static_proxy(path):
 if __name__ == '__main__':
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
