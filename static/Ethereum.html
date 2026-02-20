@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ethereum Coin</title>
+  <link rel="stylesheet" href="css.css">
+  <!-- TradingView widget script -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+</head>
+<body>
+
+
+  <div id="chat-widget" class="collapsed">
+    <div id="chat-header">
+      🧠 Grypto AI 
+      <button id="toggle-expand" title="Genişlet" style="float: right;">&#x2922;</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <textarea id="user-input" placeholder="İndikatör verilerini gir veya soru sor..." rows="2"></textarea>
+      <button onclick="getSignal()">Analiz</button>
+    </div>
+  </div>
+  
+  <!-- Chat Widget için JavaScript -->
+
+<script src="chat.js"></script>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h1 onclick="location.href='index.html'">
+      <img src="logo.png" alt="GRYPTO Logo" class="logo">
+    </h1>
+    <div class="coin-list">
+      <div class="coin-item" onclick="location.href='bitcoin.html'">Bitcoin</div>
+      <div class="coin-item" onclick="location.href='ethereum.html'">Ethereum</div>
+      <div class="coin-item" onclick="location.href='ada.html'">ADA</div>
+      <div class="coin-item" onclick="location.href='avax.html'">AVAX</div>
+      <div class="coin-item" onclick="location.href='mana.html'">MANA</div>
+      <div class="coin-item" onclick="location.href='bnb.html'">BNB</div>
+      <div class="coin-item" onclick="location.href='xrp.html'">XRP</div>
+      <div class="coin-item" onclick="location.href='solana.html'">SOLANA</div>
+      <div class="coin-item" onclick="location.href='doge.html'">DOGE</div>
+      <div class="coin-item" onclick="location.href='trx.html'">TRX</div>
+    </div>
+  </div>
+
+  <!-- Ana İçerik -->
+  <div class="main-content">
+    <h2>$ INDICATORS $</h2>
+    <div class="indicator-grid">
+      <div class="indicator-box" id="rsi">
+        <p>RSI: Yükleniyor...</p>
+        <div class="mini-chart" id="rsi_chart"></div>
+      </div>
+      <div class="indicator-box" id="ema">
+        <p>EMA: Yükleniyor...</p>
+        <div class="mini-chart" id="ema_chart"></div>
+      </div>
+      <div class="indicator-box" id="macd">
+        <p>MACD: Yükleniyor...</p>
+        <div class="mini-chart" id="macd_chart"></div>
+      </div>
+      <div class="indicator-box" id="bbands">
+        <p>BBANDS: Yükleniyor...</p>
+        <div class="mini-chart" id="bbands_chart"></div>
+      </div>
+      <div class="indicator-box" id="atr">
+        <p>ATR: Yükleniyor...</p>
+        <div class="mini-chart" id="atr_chart"></div>
+      </div>
+      <div class="indicator-box" id="stoch">
+        <p>STOCH: Yükleniyor...</p>
+        <div class="mini-chart" id="stoch_chart"></div>
+      </div>
+      <div class="indicator-box" id="adx">
+        <p>ADX: Yükleniyor...</p>
+        <div class="mini-chart" id="adx_chart"></div>
+      </div>
+      <div class="indicator-box" id="ichimoku">
+        <p>ICHIMOKU: Yükleniyor...</p>
+        <div class="mini-chart" id="ichimoku_chart"></div>
+      </div>
+      <div class="indicator-box" id="obv">
+        <p>OBV: Yükleniyor...</p>
+        <div class="mini-chart" id="obv_chart"></div>
+      </div>
+      <div class="indicator-box" id="keltner">
+        <p>KELTNER: Yükleniyor...</p>
+        <div class="mini-chart" id="keltner_chart"></div>
+      </div>
+      <div class="indicator-box" id="sar">
+        <p>SAR: Yükleniyor...</p>
+        <div class="mini-chart" id="sar_chart"></div>
+      </div>
+      <div class="indicator-box" id="vwap">
+        <p>VWAP: Yükleniyor...</p>
+        <div class="mini-chart" id="vwap_chart"></div>
+      </div>
+      <div class="indicator-box" id="mfi">
+        <p>MFI: Yükleniyor...</p>
+        <div class="mini-chart" id="mfi_chart"></div>
+      </div>
+      <div class="indicator-box" id="supertrend">
+        <p>SUPERTREND: Yükleniyor...</p>
+        <div class="mini-chart" id="supertrend_chart"></div>
+      </div>
+      <div class="indicator-box" id="cci">
+        <p>CCI: Yükleniyor...</p>
+        <div class="mini-chart" id="cci_chart"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    /* TradingView Study Mapping – Detaylı analiz ve mini grafikler için */
+    const studyMapping = {
+      RSI: "RSI@tv-basicstudies",
+      EMA: "MAExp@tv-basicstudies",  // Güncel değer
+      MACD: "MACD@tv-basicstudies",
+      BBANDS: "BB@tv-basicstudies",
+      ATR: "ATR@tv-basicstudies",
+      STOCH: "Stochastic@tv-basicstudies",
+      ADX: "STD;DMI",
+      ICHIMOKU: "IchimokuCloud@tv-basicstudies",
+      OBV: "OBV@tv-basicstudies",
+      KELTNER: "KLTNR@tv-basicstudies",
+      SAR: "PSAR@tv-basicstudies",
+      VWAP: "VWAP@tv-basicstudies",
+      MFI: "MF@tv-basicstudies", 
+      SUPERTREND: "STD;Supertrend",
+      CCI: "CCI@tv-basicstudies"
+    };
+
+    // İndikatör kutuları tıklanabilir; detaylı analiz sayfası için yeni sekmede açılır.
+    document.querySelectorAll('.indicator-box').forEach(box => {
+  box.addEventListener('click', () => {
+    const indicator = box.id.toUpperCase();
+    window.open(`analiz.html?indicator=${indicator}&coin=ETH`, '_blank');
+  });
+});
+
+    /* -------------------------
+       HER İNDİKATÖR İÇİN AYRI API ÇAĞRILARI 
+       API key: d3123a9d9d344ce99c9e05fa75e32b78, interval=15min, symbol=ETH/USD
+    ------------------------- */
+    function loadRSI() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "RSI API hatası");
+            }
+            const rsi = parseFloat(data.values[0].rsi);
+            document.querySelector('#rsi p').innerHTML = `RSI: ${isNaN(rsi) ? "N/A" : rsi.toFixed(2)}`;
+          } catch (error) {
+            console.error("RSI Hata:", error);
+            document.querySelector('#rsi p').innerHTML = `RSI: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/rsi?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadEMA() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "EMA API hatası");
+            }
+            const ema = parseFloat(data.values[0].ema);
+            document.querySelector('#ema p').innerHTML = `EMA: ${isNaN(ema) ? "N/A" : ema.toFixed(2)}`;
+          } catch (error) {
+            console.error("EMA Hata:", error);
+            document.querySelector('#ema p').innerHTML = `EMA: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/ema?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadMACD() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "MACD API hatası");
+            }
+            const macd = parseFloat(data.values[0].macd);
+            document.querySelector('#macd p').innerHTML = `MACD: ${isNaN(macd) ? "N/A" : macd.toFixed(2)}`;
+          } catch (error) {
+            console.error("MACD Hata:", error);
+            document.querySelector('#macd p').innerHTML = `MACD: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/macd?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadBBANDS() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            const upper = parseFloat(data.values[0].upper_band); // Anahtar değişti
+            const lower = parseFloat(data.values[0].lower_band);
+            document.querySelector('#bbands p').innerHTML = `BBANDS: ${upper.toFixed(2)} / ${lower.toFixed(2)}`;
+          } catch (error) {
+            document.querySelector('#bbands p').innerHTML = `BBANDS: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/bbands?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD&sd=2&ma_type=SMA"); // Parametre eklendi
+      xhr.send(null);
+    }
+    function loadATR() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "ATR API hatası");
+            }
+            const atr = parseFloat(data.values[0].atr);
+            document.querySelector('#atr p').innerHTML = `ATR: ${isNaN(atr) ? "N/A" : atr.toFixed(2)}`;
+          } catch (error) {
+            console.error("ATR Hata:", error);
+            document.querySelector('#atr p').innerHTML = `ATR: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/atr?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadSTOCH() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            const k = parseFloat(data.values[0].slow_k); // Slow Stochastic için doğru anahtar
+            const d = parseFloat(data.values[0].slow_d);
+            document.querySelector('#stoch p').innerHTML = `STOCH: K% ${k.toFixed(2)} / D% ${d.toFixed(2)}`;
+          } catch (error) {
+            document.querySelector('#stoch p').innerHTML = `STOCH: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/stoch?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD&slow_kperiod=14&slow_dperiod=3"); // Orijinal endpoint
+      xhr.send(null);
+    }
+
+    function loadADX() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "ADX API hatası");
+            }
+            const adx = parseFloat(data.values[0].adx);
+            document.querySelector('#adx p').innerHTML = `ADX: ${isNaN(adx) ? "N/A" : adx.toFixed(2)}`;
+          } catch (error) {
+            console.error("ADX Hata:", error);
+            document.querySelector('#adx p').innerHTML = `ADX: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/adx?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+
+    function loadICHIMOKU() {
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener("readystatechange", function() {
+      if (this.readyState === this.DONE) {
+        try {
+          const data = JSON.parse(this.responseText);
+          if (!data || data.status !== "ok" || !data.values || data.values.length === 0) {
+            throw new Error(data?.message || "ICHIMOKU API hatası");
+          }
+          // En güncel veriyi almak için son elemanı kullanıyoruz.
+          const latestIndex = data.values.length - 1;
+          const ichimokuData = data.values[latestIndex];
+          // API yanıtındaki anahtar isimleri "tenkan_sen" ve "kijun_sen"
+          const tenkan = parseFloat(ichimokuData.tenkan_sen);
+          const kijun = parseFloat(ichimokuData.kijun_sen);
+          document.querySelector('#ichimoku p').innerHTML = `ICHIMOKU: Tenkan ${isNaN(tenkan) ? "N/A" : tenkan.toFixed(2)} | Kijun ${isNaN(kijun) ? "N/A" : kijun.toFixed(2)}`;
+        } catch (error) {
+          console.error("ICHIMOKU Hata:", error);
+          document.querySelector('#ichimoku p').innerHTML = `ICHIMOKU: Hata`;
+        }
+      }
+    });
+    xhr.open("GET", "https://api.twelvedata.com/ichimoku?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+    xhr.send(null);
+  }
+
+    function loadOBV() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "OBV API hatası");
+            }
+            const obv = parseFloat(data.values[0].obv);
+            document.querySelector('#obv p').innerHTML = `OBV: ${isNaN(obv) ? "N/A" : obv.toFixed(2)}`;
+          } catch (error) {
+            console.error("OBV Hata:", error);
+            document.querySelector('#obv p').innerHTML = `OBV: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/obv?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadKELTNER() {
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener("readystatechange", function() {
+      if (this.readyState === this.DONE) {
+        try {
+          const data = JSON.parse(this.responseText);
+          if (!data || data.status !== "ok" || !data.values || data.values.length === 0) {
+            throw new Error(data?.message || "KELTNER API hatası");
+          }
+          // API yanıtındaki veriler "upper_line" ve "lower_line" anahtarları altında
+          const keltnerData = data.values[0];
+          const upper = parseFloat(keltnerData.upper_line);
+          const lower = parseFloat(keltnerData.lower_line);
+          document.querySelector('#keltner p').innerHTML = `KELTNER: Üst ${isNaN(upper) ? "N/A" : upper.toFixed(2)} | Alt ${isNaN(lower) ? "N/A" : lower.toFixed(2)}`;
+        } catch (error) {
+          console.error("KELTNER Hata:", error);
+          document.querySelector('#keltner p').innerHTML = `KELTNER: Hata`;
+        }
+      }
+    });
+    xhr.open("GET", "https://api.twelvedata.com/keltner?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+    xhr.send(null);
+  }
+    function loadSAR() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "SAR API hatası");
+            }
+            const sar = parseFloat(data.values[0].sar);
+            document.querySelector('#sar p').innerHTML = `SAR: ${isNaN(sar) ? "N/A" : sar.toFixed(2)}`;
+          } catch (error) {
+            console.error("SAR Hata:", error);
+            document.querySelector('#sar p').innerHTML = `SAR: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/sar?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadVWAP() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "VWAP API hatası");
+            }
+            const vwap = parseFloat(data.values[0].vwap);
+            document.querySelector('#vwap p').innerHTML = `VWAP: ${isNaN(vwap) ? "N/A" : vwap.toFixed(2)}`;
+          } catch (error) {
+            console.error("VWAP Hata:", error);
+            document.querySelector('#vwap p').innerHTML = `VWAP: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/vwap?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadMFI() {
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener("readystatechange", function() {
+    if (this.readyState === this.DONE) {
+      try {
+        const data = JSON.parse(this.responseText);
+        if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+          throw new Error(data?.message || "MFI API hatası");
+        }
+        const mfi = parseFloat(data.values[0].mfi);
+        document.querySelector('#mfi p').innerHTML = `MFI: ${isNaN(mfi) ? "N/A" : mfi.toFixed(2)}`;
+      } catch (error) {
+        console.error("MFI Hata:", error);
+        document.querySelector('#mfi p').innerHTML = `MFI: Hata`;
+      }
+    }
+  });
+
+  // time_period=14 ekledim (standart)
+  xhr.open("GET", "https://api.twelvedata.com/mfi?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+  xhr.send(null);
+}
+    function loadSUPERTREND() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "SUPERTREND API hatası");
+            }
+            const supertrend = parseFloat(data.values[0].supertrend);
+            document.querySelector('#supertrend p').innerHTML = `SUPERTREND: ${isNaN(supertrend) ? "N/A" : supertrend.toFixed(2)}`;
+          } catch (error) {
+            console.error("SUPERTREND Hata:", error);
+            document.querySelector('#supertrend p').innerHTML = `SUPERTREND: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/supertrend?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+    function loadCCI() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function() {
+        if (this.readyState === this.DONE) {
+          try {
+            const data = JSON.parse(this.responseText);
+            if (!data || data.status !== "ok" || !data.values || !data.values[0]) {
+              throw new Error(data?.message || "CCI API hatası");
+            }
+            const cci = parseFloat(data.values[0].cci);
+            document.querySelector('#cci p').innerHTML = `CCI: ${isNaN(cci) ? "N/A" : cci.toFixed(2)}`;
+          } catch (error) {
+            console.error("CCI Hata:", error);
+            document.querySelector('#cci p').innerHTML = `CCI: Hata`;
+          }
+        }
+      });
+      xhr.open("GET", "https://api.twelvedata.com/cci?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+      xhr.send(null);
+    }
+
+    // Tüm API çağrılarını çalıştıran fonksiyon
+    function loadAllIndicators() {
+      loadRSI();
+      loadEMA();
+      loadMACD();
+      loadBBANDS();
+      loadATR();
+      loadSTOCH();
+      loadADX();
+      loadICHIMOKU();
+      loadOBV();
+      loadKELTNER();
+      loadSAR();
+      loadVWAP();
+      loadMFI();
+      loadSUPERTREND();
+      loadCCI();
+    }
+
+    // Mini Grafikler: Mini grafik div'leri kutu içindeki normal akışa ekleniyor.
+    function initMiniCharts() {
+      document.querySelectorAll('.indicator-box').forEach(box => {
+        const containerId = `${box.id}_chart`;
+        // Eğer eski div varsa kaldırıyoruz.
+        let existing = document.getElementById(containerId);
+        if (existing) existing.remove();
+
+        // Yeni mini grafik div'i, kutu içeriğinde (normal akışta) yer alacak.
+        const chartDiv = document.createElement('div');
+        chartDiv.id = containerId;
+        chartDiv.className = "mini-chart";
+        // TradingView widget için alt boyut tanımı
+        chartDiv.style.height = "100px";
+        box.appendChild(chartDiv);
+
+        const study = studyMapping[box.id.toUpperCase()] || box.id.toUpperCase();
+        new TradingView.widget({
+          container_id: containerId,
+          width: "100%",
+          height: "100",
+          symbol: "BINANCE:ETHUSDT",
+          interval: "15",
+          theme: "dark",
+          locale: "tr",
+          hide_side_toolbar: true,
+          hideideas: true,
+          details: false,
+          studies: [study]
+
+        });
+      });
+    }
+
+    // Sayfa yüklendiğinde tüm indikatörleri ve mini grafikleri güncelle
+    window.onload = function() {
+      loadAllIndicators();
+      initMiniCharts();
+    };
+
+    // Her 15 Dakikada API verilerini yenile
+    setInterval(loadAllIndicators, 900000);
+  </script>
+</body>
+</html>
