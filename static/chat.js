@@ -147,15 +147,31 @@
     chat.scrollTop = chat.scrollHeight;
   
     try {
-      // 1. İndikatör verilerini topla
+      // 1. OTOMATİK İNDİKATÖR VERİLERİNİ ÇEKİYORUZ (Asla bozulmaz!)
       let promptText = await buildAutoPrompt();
       
-      // 2. KUTUDAKİ YAZIYI YAKALA (İşte eksik olan hayati kod burasıydı!)
-      const inputBox = document.querySelector('textarea') || document.querySelector('input[type="text"]');
+      // 2. KUTULARDAKİ COINGLASS VERİLERİNİ YAKALIYORUZ
+      const upperLiq = document.getElementById('upper-liq') ? document.getElementById('upper-liq').value.trim() : "";
+      const lowerLiq = document.getElementById('lower-liq') ? document.getElementById('lower-liq').value.trim() : "";
+      
+      // 3. EĞER KUTULARA SAYI GİRİLDİYSE, EMRİ İNDİKATÖRLERİN ALTINA "EKLE" (+=)
+      if (upperLiq !== "" || lowerLiq !== "") {
+          promptText += `\n\n🚨 COMMANDER OVERRIDE INTELLIGENCE (CRITICAL):\n`;
+          promptText += `The user has provided exact 12H Liquidation Map data from Coinglass:\n`;
+          if (upperLiq !== "") promptText += `- Massive Upper Liquidity Pool: ${upperLiq}\n`;
+          if (lowerLiq !== "") promptText += `- Massive Lower Liquidity Pool: ${lowerLiq}\n`;
+          promptText += `\nINSTRUCTION: If your indicator analysis shows LONG, you MUST set 'liquidity_target' to ${upperLiq || "the upper pool"} and place TP slightly below it to front-run. If indicators show SHORT, target ${lowerLiq || "the lower pool"} and place TP slightly above it. Override your 15m default targets! Adjust SL to maintain a proper RR.\n`;
+      }
+
+      // 4. (Opsiyonel) Eski beyaz sohbet kutusuna not yazıldıysa onu da ekle
+      const inputBox = document.querySelector('.chat-input textarea') || document.querySelector('.chat-input input[type="text"]');
       if (inputBox && inputBox.value.trim() !== "") {
-          promptText += "\n\n🚨 COMMANDER OVERRIDE INTELLIGENCE (CRITICAL):\n" + inputBox.value.trim();
+          promptText += "\n\nAdditional User Note: " + inputBox.value.trim();
+          // Gönderdikten sonra kutuyu temizle
+          inputBox.value = "";
       }
   
+      // 5. TÜM PAKETİ YAPAY ZEKAYA GÖNDER
       const r = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -186,6 +202,7 @@
           });
       }
   
+      // 6. EKRANA YAZDIRMA KISMI (TASARIM)
       chat.innerHTML += `
         <div class="message" style="background: #1e293b; padding: 15px; border-radius: 8px; border-left: 5px solid ${directionColor}; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
           
@@ -262,4 +279,5 @@
   
 
   })();
+
 
