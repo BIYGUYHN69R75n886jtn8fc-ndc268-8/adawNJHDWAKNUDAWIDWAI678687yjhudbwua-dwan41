@@ -169,7 +169,6 @@ def chat():
     try:
         response = client.chat.completions.create(
             model="gpt-5-mini",
-            temperature=0.2, 
             response_format={ "type": "json_object" },
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -233,6 +232,7 @@ def static_proxy(path):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
