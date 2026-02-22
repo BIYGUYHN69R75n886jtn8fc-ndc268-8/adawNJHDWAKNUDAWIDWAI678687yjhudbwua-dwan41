@@ -143,12 +143,18 @@
     if (!chat) return;
   
     const loadingId = "loading-" + Date.now();
-    // 🔥 Yükleniyor yazısını 15m olarak düzelttik
     chat.innerHTML += `<div id="${loadingId}" class="message" style="color:#94a3b8;"><strong>${coinName}:</strong> AI is analyzing 15m charts & liquidity pools... 🧠⚙️</div>`;
     chat.scrollTop = chat.scrollHeight;
   
     try {
-      const promptText = await buildAutoPrompt();
+      // 1. İndikatör verilerini topla
+      let promptText = await buildAutoPrompt();
+      
+      // 2. KUTUDAKİ YAZIYI YAKALA (İşte eksik olan hayati kod burasıydı!)
+      const inputBox = document.querySelector('textarea') || document.querySelector('input[type="text"]');
+      if (inputBox && inputBox.value.trim() !== "") {
+          promptText += "\n\n🚨 COMMANDER OVERRIDE INTELLIGENCE (CRITICAL):\n" + inputBox.value.trim();
+      }
   
       const r = await fetch("/chat", {
         method: "POST",
@@ -207,7 +213,7 @@
           </div>
 
           <div style="background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center;">
-              <b>🎯 Whale Liquidity Target:</b> <span style="color:#f87171; font-size: 1.1em; font-weight: bold;">${j.liquidity_target !== null ? j.liquidity_target : "N/A"}</span>
+              <b>🎯 Whale Target (TP):</b> <span style="color:#f87171; font-size: 1.1em; font-weight: bold;">${j.liquidity_target !== null ? j.liquidity_target : "N/A"}</span>
           </div>
   
           ${j.direction !== "HOLD" ? `
@@ -256,3 +262,4 @@
   
 
   })();
+
