@@ -121,7 +121,7 @@ def chat():
     - New York Session (13:00-21:00 UTC): Max volume. Ride the strong momentum.
     - Golden Overlap (13:00-16:00 UTC): Explosive moves.
 
-   SMART MONEY & SQUEEZE RULES:
+    SMART MONEY & SQUEEZE RULES:
     1. VOLATILITY SQUEEZE: If Volatility bands (BBANDS) are very tight/narrow, a massive breakout is pending. Signal this.
     2. LIQUIDITY HUNTING: Normally, set your 'liquidity_target' just outside the opposite Keltner/BBANDS bands.
     3. 🛑 COMMANDER OVERRIDE (CRITICAL): If the user provides external data in the prompt (like Coinglass 12H liquidation levels, e.g., 1993 or 1954), this intelligence is ABSOLUTE. You MUST OVERRIDE your 15m indicator limits. Use the user's exact provided levels for your 'liquidity_target', and adjust your TP (Take Profit) to be just front-running this massive target.
@@ -167,7 +167,7 @@ def chat():
     """
 
     try:
-            response = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
             temperature=0.2, 
             response_format={ "type": "json_object" },
@@ -233,8 +233,3 @@ def static_proxy(path):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
-
-
-
-
-
