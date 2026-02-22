@@ -10,15 +10,69 @@
 <body>
 
 
+ <div class="tradingview-widget-container" style="border-bottom: 1px solid #334155;">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+    "symbols": [
+      {
+        "proName": "BINANCE:BTCUSDT",
+        "title": "Bitcoin"
+      },
+      {
+        "proName": "BINANCE:ETHUSDT",
+        "title": "Ethereum"
+      },
+      {
+        "proName": "BINANCE:BNBUSDT",
+        "title": "BNB"
+      },
+      {
+        "proName": "BINANCE:XRPUSDT",
+        "title": "XRP"
+      },
+      {
+        "description": "DXY (Dolar Endeksi)",
+        "proName": "TVC:DXY"
+      },
+      {
+        "description": "Altın (Ons)",
+        "proName": "OANDA:XAUUSD"
+      },
+      {
+        "description": "S&P 500 (ABD Borsası)",
+        "proName": "FOREXCOM:SPXUSD"
+      }
+    ],
+    "showSymbolLogo": true,
+    "colorTheme": "dark",
+    "isTransparent": true,
+    "displayMode": "adaptive",
+    "locale": "tr"
+  }
+    </script>
+  </div>
+  
   <div id="chat-widget" class="collapsed">
     <div id="chat-header">
       🧠 Grypto AI 
       <button id="toggle-expand" title="Genişlet" style="float: right;">&#x2922;</button>
     </div>
     <div id="chat-messages"></div>
-    <div id="chat-input">
-      <textarea id="user-input" placeholder="İndikatör verilerini gir veya soru sor..." rows="2"></textarea>
-      <button onclick="getSignal()">Analiz</button>
+  <div id="chat-input" style="display: flex; flex-direction: column; padding: 10px; gap: 10px; border-top: 1px solid #334155; background: #0f172a;">
+        
+        <textarea id="user-input" placeholder="İndikatör verilerini gir veya soru sor..." style="width: 100%; min-height: 50px; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #fff; color: #000; box-sizing: border-box; resize: vertical; font-size: 14px; font-family: sans-serif;"></textarea>
+
+        <div style="display: flex; gap: 10px; align-items: stretch; height: 40px;">
+            
+            <div style="display: flex; flex: 1; gap: 10px; background: #1e293b; padding: 5px; border-radius: 6px; border: 1px solid #334155;">
+                <input type="number" id="upper-liq" placeholder="📈 Üst TP (Örn: 1993)" style="flex: 1; padding: 5px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: #22c55e; font-size: 12px; font-weight: bold; outline: none;">
+                <input type="number" id="lower-liq" placeholder="📉 Alt SL (Örn: 1954)" style="flex: 1; padding: 5px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: #ef4444; font-size: 12px; font-weight: bold; outline: none;">
+            </div>
+
+            <button onclick="getSignal()" style="background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: bold; padding: 0 25px; cursor: pointer; transition: 0.2s; font-size: 14px;">Analiz</button>
+            
+        </div>
     </div>
   </div>
   
@@ -516,3 +570,4 @@
   </script>
 </body>
 </html>
+
