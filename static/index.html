@@ -7,6 +7,48 @@
 </head>
 <body>
 
+    <div class="tradingview-widget-container" style="border-bottom: 1px solid #334155;">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+    "symbols": [
+      {
+        "proName": "BINANCE:BTCUSDT",
+        "title": "Bitcoin"
+      },
+      {
+        "proName": "BINANCE:ETHUSDT",
+        "title": "Ethereum"
+      },
+      {
+        "proName": "BINANCE:BNBUSDT",
+        "title": "BNB"
+      },
+      {
+        "proName": "BINANCE:XRPUSDT",
+        "title": "XRP"
+      },
+      {
+        "description": "DXY (Dolar Endeksi)",
+        "proName": "TVC:DXY"
+      },
+      {
+        "description": "Altın (Ons)",
+        "proName": "OANDA:XAUUSD"
+      },
+      {
+        "description": "S&P 500 (ABD Borsası)",
+        "proName": "FOREXCOM:SPXUSD"
+      }
+    ],
+    "showSymbolLogo": true,
+    "colorTheme": "dark",
+    "isTransparent": true,
+    "displayMode": "adaptive",
+    "locale": "tr"
+  }
+    </script>
+  </div>
 
     <div id="chat-widget" class="collapsed">
         <div id="chat-header">
@@ -160,4 +202,5 @@ window.onload = () => {
 };
     </script>
 </body>
+
 </html>
