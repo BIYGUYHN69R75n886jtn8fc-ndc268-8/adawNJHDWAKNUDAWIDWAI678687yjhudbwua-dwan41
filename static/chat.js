@@ -136,14 +136,15 @@
       autoFillChat();
     });
   
- // 🔥 PROFESSIONAL SIGNAL ENGINE DISPLAY (ZENGİNLEŞTİRİLMİŞ)
+ // 🔥 PROFESSIONAL SIGNAL ENGINE DISPLAY (SMART MONEY EDITION)
   window.getSignal = async function () {
     const { coinName } = getCoinInfo();
     const chat = document.getElementById("chat-messages");
     if (!chat) return;
   
     const loadingId = "loading-" + Date.now();
-    chat.innerHTML += `<div id="${loadingId}" class="message" style="color:#94a3b8;"><strong>${coinName}:</strong> AI is analyzing 15 indicators, please wait... 🧠⚙️</div>`;
+    // 🔥 Yükleniyor yazısını 15m olarak düzelttik
+    chat.innerHTML += `<div id="${loadingId}" class="message" style="color:#94a3b8;"><strong>${coinName}:</strong> AI is analyzing 15m charts & liquidity pools... 🧠⚙️</div>`;
     chat.scrollTop = chat.scrollHeight;
   
     try {
@@ -170,7 +171,6 @@
       if (j.direction === "LONG") directionColor = "#22c55e"; 
       if (j.direction === "SHORT") directionColor = "#ef4444"; 
 
-      // İndikatör Oylarını Sayma (Kaç Boğa, Kaç Ayı, Kaç Nötr?)
       let bullCount = 0, bearCount = 0, neutralCount = 0;
       if (j.indicator_votes) {
           Object.values(j.indicator_votes).forEach(vote => {
@@ -184,14 +184,14 @@
         <div class="message" style="background: #1e293b; padding: 15px; border-radius: 8px; border-left: 5px solid ${directionColor}; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
           
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <strong style="font-size: 1.2em; color: #fff;">${coinName} Signal</strong>
+            <strong style="font-size: 1.2em; color: #fff;">${coinName} 15m Signal</strong>
             <div style="background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid ${directionColor};">
                 <b style="color: ${directionColor}; font-size: 1.2em;">${j.direction}</b> 
                 <span style="color:#94a3b8; font-size: 0.9em;">(${j.confidence || 0}%)</span>
             </div>
           </div>
           
-          <div style="background: #0f172a; padding: 10px; border-radius: 6px; font-size: 0.9em; margin-bottom: 15px; border: 1px solid #334155;">
+          <div style="background: #0f172a; padding: 10px; border-radius: 6px; font-size: 0.9em; margin-bottom: 10px; border: 1px solid #334155;">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                   <div><b>📊 Market:</b> <span style="color:#38bdf8;">${j.market_regime ?? "Unknown"}</span></div>
                   <div><b>🎯 Score:</b> <span style="color:#a78bfa;">${j.confluence_score ?? "-"}</span></div>
@@ -205,6 +205,10 @@
                  <span style="color: #ef4444;">🔴 ${bearCount} Bear</span>
               </div>
           </div>
+
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center;">
+              <b>🎯 Whale Liquidity Target:</b> <span style="color:#f87171; font-size: 1.1em; font-weight: bold;">${j.liquidity_target !== null ? j.liquidity_target : "N/A"}</span>
+          </div>
   
           ${j.direction !== "HOLD" ? `
           <div style="margin-bottom: 15px;">
@@ -214,7 +218,7 @@
           </div>
           ` : ''}
           
-          <b style="color:#e2e8f0;">Market Summary:</b><br/>
+          <b style="color:#e2e8f0;">Market Summary & Session:</b><br/>
           <span style="color:#cbd5e1; font-style: italic;">"${j.market_summary ?? "-"}"</span>
           <br/><br/>
 
@@ -250,4 +254,5 @@
     }
   };
   
+
   })();
