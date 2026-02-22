@@ -126,7 +126,7 @@ def chat():
     2. LIQUIDITY HUNTING: Normally, set your 'liquidity_target' just outside the opposite Keltner/BBANDS bands.
     3. 🛑 COMMANDER OVERRIDE (CRITICAL): If the user provides external data in the prompt (like Coinglass 12H liquidation levels, e.g., 1993 or 1954), this intelligence is ABSOLUTE. You MUST OVERRIDE your 15m indicator limits. Use the user's exact provided levels for your 'liquidity_target', and adjust your TP (Take Profit) to be just front-running this massive target.
     4. MOMENTUM IS KING: If Momentum and Volume align during NY or London session, you CAN enter.
-    5. RISK/REWARD: Minimum viable RR must be {MIN_RR}. Confidence: {MIN_CONFIDENCE}+.
+    5. RISK/REWARD: Evaluate the setup honestly from 0 to 100. Minimum viable RR for entry is {MIN_RR}. Do not fake the confidence score.
 
     JSON FORMAT EXACTLY AS BELOW:
     {{
@@ -233,4 +233,5 @@ def static_proxy(path):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
