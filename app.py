@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
-print("ULTRA PRO QUANT ENGINE v8 (1H Sniper - Anti-Falling Knife Edition) is starting...")
+print("ULTRA PRO QUANT ENGINE v9 (1H Institutional Synthesis Edition) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
@@ -19,7 +19,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 MIN_RR = 1.5       
-MIN_CONFIDENCE = 65  # 🔥 1H grafikleri için ayarlı
+MIN_CONFIDENCE = 60  # 1H Institutional setup barajı
 
 # 👥 MÜŞTERİ VERİTABANI
 VIP_USERS = {
@@ -107,29 +107,40 @@ def chat():
 
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
 
-    # 🔥 BÜYÜK GÜNCELLEME: DÜŞEN BIÇAĞI TUTMA (ANTI-FALLING KNIFE) KURALI EKLENDİ
+    # 🔥 BÜYÜK GÜNCELLEME: PROFESYONEL QUANT SENTEZ MANTIĞI EKLENDİ (SAYIM KALDIRILDI)
     system_prompt = f"""
-    You are an elite, cold-blooded crypto futures Market Maker and Institutional Quant.
-    Timeframe: 1H (One Hour). Your ONLY objective is maximum accuracy. The user expects a high win rate (e.g., winning 12 out of 16 trades). 
+    You are a top-tier, cold-blooded Institutional Quant and Crypto Futures Market Maker.
+    Your timeframe is strictly 1H (One Hour). Your ONLY objective is institutional-grade accuracy.
 
     CURRENT SYSTEM TIME: {current_time_utc}
     
-    SESSION RULES:
-    - Asian Session (00:00-08:00 UTC): Low volume. Expect fake breakouts. NEVER give a LONG/SHORT signal here unless a massive whale target is triggered.
-    - London & NY Sessions: Real trends and institutional money flow occur here.
-
-    STRICT QUANT RULES (THE REALITY CHECK):
-    1. THE EXHAUSTION TRAP: If RSI is > 70 or < 30 AND the ADX is very high (>30), the trend is exhausted. Whales are trapping retail traders. DO NOT enter in the direction of the trend. Give a HOLD.
-    
-    2. 🛑 COMMANDER OVERRIDE & SAFETY VALVE (CRITICAL): The user will provide liquidation targets.
-       - If the user types "NONE", "YOK", or "0" for a direction, this means that side is completely EMPTY. DO NOT target empty zones.
-       - If a specific number is provided, it is a magnetic target.
-       - ⚠️ THE "ANTI-FALLING KNIFE" PROTOCOL: Even if there is a massive liquidity target, you MUST check the indicator alignment. If the indicators are overwhelmingly against the target (e.g., 0, 1 or 2 Bullish indicators but the target requires a LONG, OR 0, 1 or 2 Bearish indicators but the target requires a SHORT), YOU MUST IMMEDIATELY OUTPUT "HOLD". Do not step in front of a strong opposing trend just to grab liquidity. This is a suicide trade.
+    INSTITUTIONAL QUANT RULES (THE REALITY CHECK):
+    1. MARKET REGIME DIAGNOSIS (THE FOUNDATION): 
+       Before analyzing direction, you MUST determine the Market Regime using technical synthesis:
+       - Trend Strength: ADX dictates if we are trending (>25) or ranging (<20).
+       - Volatility: BBands expanding means explosive move; squeezing means accumulation.
+       - Trend Direction: EMA, VWAP, and Ichimoku Cloud relationship.
        
-    3. THE 85%+ RULE (CRITICAL): The user demands REALITY, not perfection. Do NOT give a confidence score of 85%, 90%, or 95% unless the setup is a guaranteed, sniper-level entry with perfect confluence on the 1H timeframe. 
-    
-    4. RUTHLESS DOWNGRADING: If the data is mixed or the trend opposes the liquidity target, be absolutely ruthless. Downgrade the confidence score to 40-60% and output "HOLD". It is better to miss a trade than to lose capital.
-    5. Minimum viable RR for entry is {MIN_RR}. If RR is lower, it is an automatic HOLD.
+    2. WEIGHTED INDICATOR SYNTHESIS (NEVER USE SIMPLE COUNTING):
+       - DO NOT simply count how many indicators are "bullish" vs "bearish". This is amateur logic. Every indicator has a different job.
+       - MOMENTUM (RSI, Stoch, MACD): Identifies timing, overbought/oversold conditions, and hidden divergences.
+       - VOLUME / SMART MONEY (OBV, MFI, VWAP): Indicates true institutional conviction. A breakout without volume is a trap.
+       - STRUCTURE (EMA, Keltner, Supertrend): Identifies dynamic support/resistance and macro direction.
+       
+    3. LIQUIDITY & THE TRUE ANTI-FALLING KNIFE PROTOCOL:
+       - The user provides liquidation targets (magnetic zones).
+       - If a specific numeric target is provided (e.g., 1922), it is a magnet. BUT it cannot defy physics.
+       - THE RULE: You must synthesize the structural trend and volume. If the user provides an Upper Liquidity Target (implied LONG), BUT the structural trend (VWAP, EMA, Supertrend) is heavily bearish AND volume/momentum confirms downside pressure, YOU MUST OUTPUT "HOLD". 
+       - Never step in front of a heavily trending market just to reach a liquidity pool. Do not catch falling knives. Wait for structural shifts.
+       - If the user types "YOK", "0", or "NONE" for a direction, that liquidity pool is completely empty. The market has no fuel to go there. DO NOT trade into an empty zone.
+
+    4. DISTANCE & RISK MANAGEMENT:
+       - 1H charts require breathing room. If you output an ENTRY, TP, and SL, ensure the price distance reflects a 1H institutional swing trade, not a 1-minute scalp.
+       - Minimum viable Risk/Reward (RR) is {MIN_RR}.
+
+    5. SCORING REALITY: 
+       - Downgrade confidence to 40-55% and output "HOLD" if the macro structure opposes the liquidity target, or if volume (OBV/MFI) contradicts momentum (RSI/MACD).
+       - Only give 70%+ confidence if Liquidity, Structural Trend, and Volume completely align.
 
     JSON FORMAT EXACTLY AS BELOW:
     {{
@@ -144,7 +155,7 @@ def chat():
      "confidence": integer 0-100,
      "risk": "Low|Medium|High",
      "rr": float,
-     "confluence_score": "e.g., 12/15 Perfect Alignment",
+     "confluence_score": "e.g., High Volume Alignment / Divergence Detected",
      "indicator_votes": {{
         "RSI": "bullish|bearish|neutral",
         "EMA": "bullish|bearish|neutral",
@@ -162,17 +173,17 @@ def chat():
         "SUPERTREND": "bullish|bearish|neutral",
         "CCI": "bullish|bearish|neutral"
      }},
-     "why": ["Reason 1", "Reason 2"],
-     "what_to_watch_for": "Specific action to wait for before entering a trade.",
-     "cancel_conditions": ["If 1H candle closes below X"],
-     "market_summary": "1 sentence sharp tactical assessment."
+     "why": ["Professional structural reason 1", "Volume flow reason 2"],
+     "what_to_watch_for": "Specific structural or volume shift to wait for.",
+     "cancel_conditions": ["If 1H candle closes below structural support"],
+     "market_summary": "1 sentence institutional assessment."
     }}
     """
 
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            temperature=0.2, 
+            temperature=0.1, 
             response_format={ "type": "json_object" },
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -197,10 +208,10 @@ def chat():
                 "resistance_level": None,
                 "liquidity_target": None,
                 "indicator_votes": {},
-                "why": ["AI failed to generate valid JSON: " + str(e)],
-                "what_to_watch_for": "System parsing error, retrying...",
-                "cancel_conditions": ["System fallback"],
-                "market_summary": "Parse error in AI generation.",
+                "why": ["System Error: AI failed to parse TA synthesis.", "Fallback protocol engaged."],
+                "what_to_watch_for": "Wait for the next 1H candle and re-analyze.",
+                "cancel_conditions": ["Automatic fallback triggered"],
+                "market_summary": "Analysis failed due to core processing error.",
                 "market_regime": "Unknown",
                 "confluence_score": "Error"
             })
@@ -209,6 +220,7 @@ def chat():
         confidence = int(parsed.get("confidence") or 0)
         rr = float(parsed.get("rr") or 0.0)
 
+        # 🛑 QUANT RISK YÖNETİMİ FİLTRESİ
         if direction in ["LONG", "SHORT"]:
             if rr < MIN_RR or confidence < MIN_CONFIDENCE:
                 parsed["direction"] = "HOLD"
@@ -217,9 +229,9 @@ def chat():
                 parsed["sl"] = None
                 parsed["risk"] = "High"
                 if "why" in parsed and isinstance(parsed["why"], list):
-                    parsed["why"].append(f"Backend Filter: RR ({rr}) or Confidence Score ({confidence}%) is too low. ({MIN_CONFIDENCE}% required)")
-                parsed["market_summary"] = "Trade cancelled due to strict backend risk parameters."
-                parsed["what_to_watch_for"] = f"Waiting for a higher probability setup (Confidence >= {MIN_CONFIDENCE}%)."
+                    parsed["why"].append(f"🚨 QUANT OVERRIDE: Setup lacks institutional viability. Expected Confidence: {MIN_CONFIDENCE}%, Actual: {confidence}%. Trade blocked.")
+                parsed["market_summary"] = "Trade blocked by Quant Risk Management Protocol."
+                parsed["what_to_watch_for"] = f"Awaiting structural alignment with Confidence >= {MIN_CONFIDENCE}%."
 
         parsed["confidence"] = confidence
         parsed["rr"] = rr
