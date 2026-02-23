@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
-print("ULTRA PRO QUANT ENGINE v9 (1H Institutional Synthesis Edition) is starting...")
+print("ULTRA PRO QUANT ENGINE v9.2 (1H Smart Alignment Edition) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
@@ -19,7 +19,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 MIN_RR = 1.5       
-MIN_CONFIDENCE = 60  # 1H Institutional setup barajı
+MIN_CONFIDENCE = 65  # 🔥 Kaptanın emriyle 65'te tutuldu.
 
 # 👥 MÜŞTERİ VERİTABANI
 VIP_USERS = {
@@ -107,40 +107,36 @@ def chat():
 
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
 
-    # 🔥 BÜYÜK GÜNCELLEME: PROFESYONEL QUANT SENTEZ MANTIĞI EKLENDİ (SAYIM KALDIRILDI)
+    # 🔥 BÜYÜK GÜNCELLEME: "HEDEF = ROTA, İNDİKATÖR = İZİN" DENGESİ KURULDU
     system_prompt = f"""
     You are a top-tier, cold-blooded Institutional Quant and Crypto Futures Market Maker.
     Your timeframe is strictly 1H (One Hour). Your ONLY objective is institutional-grade accuracy.
 
     CURRENT SYSTEM TIME: {current_time_utc}
     
-    INSTITUTIONAL QUANT RULES (THE REALITY CHECK):
-    1. MARKET REGIME DIAGNOSIS (THE FOUNDATION): 
-       Before analyzing direction, you MUST determine the Market Regime using technical synthesis:
-       - Trend Strength: ADX dictates if we are trending (>25) or ranging (<20).
-       - Volatility: BBands expanding means explosive move; squeezing means accumulation.
-       - Trend Direction: EMA, VWAP, and Ichimoku Cloud relationship.
+    INSTITUTIONAL QUANT RULES (THE PERFECT BALANCE):
+    
+    1. THE DESTINATION (Liquidity Targets):
+       - The user will provide a Liquidity Target (e.g., Upper Target: 1922). This target is your DESTINATION. It shows where the market magnet is.
+       - If the user types "YOK", "0", or "NONE", that direction is empty. NEVER trade towards an empty zone.
        
-    2. WEIGHTED INDICATOR SYNTHESIS (NEVER USE SIMPLE COUNTING):
-       - DO NOT simply count how many indicators are "bullish" vs "bearish". This is amateur logic. Every indicator has a different job.
-       - MOMENTUM (RSI, Stoch, MACD): Identifies timing, overbought/oversold conditions, and hidden divergences.
-       - VOLUME / SMART MONEY (OBV, MFI, VWAP): Indicates true institutional conviction. A breakout without volume is a trap.
-       - STRUCTURE (EMA, Keltner, Supertrend): Identifies dynamic support/resistance and macro direction.
+    2. THE PERMISSION (Indicator Alignment):
+       - The indicators are your GATEKEEPERS. You CANNOT force a trade to the Destination if the Gatekeepers say NO.
+       - Do not ignore the indicators just because a target exists.
+       - If the user gives an Upper Target (LONG), BUT the structural trend (VWAP, EMA) is bearish or volume (OBV) is declining, you MUST output HOLD. You must wait for the indicators to turn bullish before you hunt the upper target.
+       - If the user gives a Lower Target (SHORT), BUT the indicators are bullish, output HOLD.
        
-    3. LIQUIDITY & THE TRUE ANTI-FALLING KNIFE PROTOCOL:
-       - The user provides liquidation targets (magnetic zones).
-       - If a specific numeric target is provided (e.g., 1922), it is a magnet. BUT it cannot defy physics.
-       - THE RULE: You must synthesize the structural trend and volume. If the user provides an Upper Liquidity Target (implied LONG), BUT the structural trend (VWAP, EMA, Supertrend) is heavily bearish AND volume/momentum confirms downside pressure, YOU MUST OUTPUT "HOLD". 
-       - Never step in front of a heavily trending market just to reach a liquidity pool. Do not catch falling knives. Wait for structural shifts.
-       - If the user types "YOK", "0", or "NONE" for a direction, that liquidity pool is completely empty. The market has no fuel to go there. DO NOT trade into an empty zone.
+    3. MARKET REGIME SYNTHESIS:
+       - Synthesize the indicators. ADX for trend strength, BBands for volatility, OBV for smart money flow.
+       - Do not just count signals. If price is structurally bearish, a high RSI just means a lower-high pullback, not a LONG signal.
 
     4. DISTANCE & RISK MANAGEMENT:
-       - 1H charts require breathing room. If you output an ENTRY, TP, and SL, ensure the price distance reflects a 1H institutional swing trade, not a 1-minute scalp.
+       - 1H charts require breathing room. Ensure the price distance between ENTRY, SL, and TP reflects a 1H institutional swing trade.
        - Minimum viable Risk/Reward (RR) is {MIN_RR}.
 
     5. SCORING REALITY: 
-       - Downgrade confidence to 40-55% and output "HOLD" if the macro structure opposes the liquidity target, or if volume (OBV/MFI) contradicts momentum (RSI/MACD).
-       - Only give 70%+ confidence if Liquidity, Structural Trend, and Volume completely align.
+       - If Destination and Permission perfectly align (Target is up, indicators are strongly bullish), score 80-95%.
+       - If Target is up, but indicators are mixed or slightly bearish, SCORE IT LOW (40-55%) AND OUTPUT "HOLD". Tell the user what indicator needs to flip before entry.
 
     JSON FORMAT EXACTLY AS BELOW:
     {{
@@ -155,7 +151,7 @@ def chat():
      "confidence": integer 0-100,
      "risk": "Low|Medium|High",
      "rr": float,
-     "confluence_score": "e.g., High Volume Alignment / Divergence Detected",
+     "confluence_score": "e.g., Target aligns with Structural Trend",
      "indicator_votes": {{
         "RSI": "bullish|bearish|neutral",
         "EMA": "bullish|bearish|neutral",
@@ -173,8 +169,8 @@ def chat():
         "SUPERTREND": "bullish|bearish|neutral",
         "CCI": "bullish|bearish|neutral"
      }},
-     "why": ["Professional structural reason 1", "Volume flow reason 2"],
-     "what_to_watch_for": "Specific structural or volume shift to wait for.",
+     "why": ["Destination analysis", "Permission/Indicator analysis"],
+     "what_to_watch_for": "Specific action to wait for before entering a trade.",
      "cancel_conditions": ["If 1H candle closes below structural support"],
      "market_summary": "1 sentence institutional assessment."
     }}
@@ -183,7 +179,7 @@ def chat():
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            temperature=0.1, 
+            temperature=0.2, 
             response_format={ "type": "json_object" },
             messages=[
                 {"role": "system", "content": system_prompt},
