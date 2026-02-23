@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
-print("ULTRA PRO QUANT ENGINE v6 (Smart Money & Scalp Edition) is starting...")
+print("ULTRA PRO QUANT ENGINE v6 (Smart Money & Liquidity Void Edition) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
@@ -105,10 +105,9 @@ def chat():
     if not user_input:
         return jsonify({"error": "Input message is required."}), 400
 
-    # 🔥 YAPAY ZEKAYA ŞU ANKİ SAATİ BİLDİRİYORUZ (UTC FORMATINDA)
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
 
-    # 🔥 ULTRA-REALISTIC QUANT ENGINE PROMPT (15m İÇİN GÜNCELLENDİ)
+    # 🔥 BÜYÜK GÜNCELLEME: LİKİDİTE BOŞLUĞU (YOK) KURALI EKLENDİ
     system_prompt = f"""
     You are an elite, cold-blooded crypto futures Market Maker and Institutional Quant.
     Timeframe: 15m (15 Minutes). Your ONLY objective is maximum accuracy. The user expects a high win rate (e.g., winning 12 out of 16 trades). 
@@ -121,7 +120,9 @@ def chat():
 
     STRICT QUANT RULES (THE REALITY CHECK):
     1. THE EXHAUSTION TRAP: If RSI is > 70 or < 30 AND the ADX is very high (>30), the trend is exhausted. Whales are trapping retail traders in 15m. DO NOT enter in the direction of the trend. Give a HOLD.
-    2. 🛑 COMMANDER OVERRIDE (ABSOLUTE): If the user provides external data (like Coinglass liquidation levels, e.g. 1928), this is the ultimate truth. OVERRIDE your indicator limits. Set TP just before this level to front-run the market.
+    2. 🛑 COMMANDER OVERRIDE & LIQUIDITY VOID (CRITICAL): The user will provide liquidation targets. 
+       - If the user types "NONE", "YOK", or "0" for a direction (e.g., Upper Target: YOK), this means that side is completely EMPTY. The market has no fuel to go there. You MUST immediately bias your analysis to the OPPOSITE direction or output HOLD. DO NOT target empty zones.
+       - If the user provides a specific number (e.g., 1880), this is a massive magnetic target. You MUST front-run it and set TP just before this level.
     3. THE 85%+ RULE (CRITICAL): The user demands REALITY, not perfection. Do NOT give a confidence score of 85%, 90%, or 95% unless the setup is a guaranteed, sniper-level entry with perfect confluence. If you give a 90% score and the trade hits Stop Loss, you have failed your primary directive. 
     4. RUTHLESS DOWNGRADING: If the data is even slightly mixed (e.g., ADX is low, or price is stuck in the middle of Bollinger Bands), be absolutely ruthless. Downgrade the confidence score to 40-60% and output "HOLD". It is better to miss a trade than to lose capital.
     5. Minimum viable RR for entry is {MIN_RR}. If RR is lower, it is an automatic HOLD.
