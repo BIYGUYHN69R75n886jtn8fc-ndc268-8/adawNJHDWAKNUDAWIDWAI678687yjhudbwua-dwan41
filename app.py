@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
-print("ULTRA PRO QUANT ENGINE v9.2 (1H Smart Alignment Edition) is starting...")
+print("ULTRA PRO QUANT ENGINE v11 (1H Institutional Liquidity Hunter) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
@@ -19,7 +19,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 MIN_RR = 1.5       
-MIN_CONFIDENCE = 65  # 🔥 Kaptanın emriyle 65'te tutuldu.
+MIN_CONFIDENCE = 65  # 🔥 Kaptan emri: %65 altı işlemler otomatik HOLD.
 
 # 👥 MÜŞTERİ VERİTABANI
 VIP_USERS = {
@@ -75,14 +75,12 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
         if username in VIP_USERS and VIP_USERS[username] == password:
             session['logged_in'] = True
             session['username'] = username
             return redirect('/index.html')
         else:
             error = "Invalid username or password!"
-            
     return render_template_string(LOGIN_HTML, error=error)
 
 @app.route('/logout')
@@ -107,36 +105,37 @@ def chat():
 
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
 
-    # 🔥 BÜYÜK GÜNCELLEME: "HEDEF = ROTA, İNDİKATÖR = İZİN" DENGESİ KURULDU
+    # 🔥 v11: LİKİDİTE AVCISI + AKILLI SENTEZ PROTOKOLÜ
     system_prompt = f"""
-    You are a top-tier, cold-blooded Institutional Quant and Crypto Futures Market Maker.
-    Your timeframe is strictly 1H (One Hour). Your ONLY objective is institutional-grade accuracy.
+    You are a legendary Institutional Quant Trader specializing in 1H Liquidity Hunting.
+    Your mission: Use Liquidity Maps as your Compass (Destination), and Indicators as your Permission (Entry Timing).
 
-    CURRENT SYSTEM TIME: {current_time_utc}
+    INSTITUTIONAL QUANT RULES (THE GOLDEN BALANCE):
     
-    INSTITUTIONAL QUANT RULES (THE PERFECT BALANCE):
-    
-    1. THE DESTINATION (Liquidity Targets):
-       - The user will provide a Liquidity Target (e.g., Upper Target: 1922). This target is your DESTINATION. It shows where the market magnet is.
-       - If the user types "YOK", "0", or "NONE", that direction is empty. NEVER trade towards an empty zone.
-       
-    2. THE PERMISSION (Indicator Alignment):
-       - The indicators are your GATEKEEPERS. You CANNOT force a trade to the Destination if the Gatekeepers say NO.
-       - Do not ignore the indicators just because a target exists.
-       - If the user gives an Upper Target (LONG), BUT the structural trend (VWAP, EMA) is bearish or volume (OBV) is declining, you MUST output HOLD. You must wait for the indicators to turn bullish before you hunt the upper target.
-       - If the user gives a Lower Target (SHORT), BUT the indicators are bullish, output HOLD.
-       
-    3. MARKET REGIME SYNTHESIS:
-       - Synthesize the indicators. ADX for trend strength, BBands for volatility, OBV for smart money flow.
-       - Do not just count signals. If price is structurally bearish, a high RSI just means a lower-high pullback, not a LONG signal.
+    1. THE DESTINATION (Liquidity Target):
+       - The user provides exact liquidation targets (magnetic zones). These are your PRIMARY objectives. 
+       - If the user types "YOK", "0", or "NONE", that direction is a total void. Never trade into a void.
+       - You MUST NOT ignore these targets. They dictate where the market 'fuel' is located.
 
-    4. DISTANCE & RISK MANAGEMENT:
-       - 1H charts require breathing room. Ensure the price distance between ENTRY, SL, and TP reflects a 1H institutional swing trade.
-       - Minimum viable Risk/Reward (RR) is {MIN_RR}.
+    2. THE PERMISSION (Indicator Synergy):
+       - Indicators are your gatekeepers. You do not blind-trade to a target.
+       - If Destination is UP (Whale Target exists), but structural trend (VWAP, EMA) is heavily Bearish, you must wait for a "Trend Exhaustion" signal. 
+       - If RSI is low (<35) or price touches Lower BBands, this is your permission to hunt the Upper Liquidity Target (Reversal Trade).
+       - Only output HOLD if the market is aggressively trending AWAY from the target with high volume conviction (OBV/MFI alignment).
+
+    3. MARKET REGIME SYNTHESIS (NO SIMPLE COUNTING):
+       - Determine if the market is Trending, Ranging, or Exhausted. 
+       - Volume (OBV/MFI) is the ultimate truth. A move to liquidity without volume support is a trap.
+
+    4. RISK MANAGEMENT (1H PROTOCOL):
+       - 1H trades require logical breathing room. Ensure Entry, SL, and TP reflect institutional levels.
+       - Minimum viable RR is {MIN_RR}.
 
     5. SCORING REALITY: 
-       - If Destination and Permission perfectly align (Target is up, indicators are strongly bullish), score 80-95%.
-       - If Target is up, but indicators are mixed or slightly bearish, SCORE IT LOW (40-55%) AND OUTPUT "HOLD". Tell the user what indicator needs to flip before entry.
+       - Align Destination and Permission. 
+       - If Target and Indicators match perfectly: 80-95% Confidence.
+       - If Target exists but indicators are slightly lagging/exhausted: 65-75% Confidence (Reversal setup).
+       - If Target exists but indicators are violently opposing: Output HOLD and explain the "Conflict of Interest".
 
     JSON FORMAT EXACTLY AS BELOW:
     {{
@@ -151,35 +150,25 @@ def chat():
      "confidence": integer 0-100,
      "risk": "Low|Medium|High",
      "rr": float,
-     "confluence_score": "e.g., Target aligns with Structural Trend",
+     "confluence_score": "Brief summary of confluence factors",
      "indicator_votes": {{
-        "RSI": "bullish|bearish|neutral",
-        "EMA": "bullish|bearish|neutral",
-        "MACD": "bullish|bearish|neutral",
-        "BBANDS": "bullish|bearish|neutral",
-        "ATR": "bullish|bearish|neutral",
-        "STOCH": "bullish|bearish|neutral",
-        "ADX": "bullish|bearish|neutral",
-        "ICHIMOKU": "bullish|bearish|neutral",
-        "OBV": "bullish|bearish|neutral",
-        "KELTNER": "bullish|bearish|neutral",
-        "SAR": "bullish|bearish|neutral",
-        "VWAP": "bullish|bearish|neutral",
-        "MFI": "bullish|bearish|neutral",
-        "SUPERTREND": "bullish|bearish|neutral",
-        "CCI": "bullish|bearish|neutral"
+        "RSI": "bullish|bearish|neutral", "EMA": "bullish|bearish|neutral", "MACD": "bullish|bearish|neutral",
+        "BBANDS": "bullish|bearish|neutral", "ATR": "bullish|bearish|neutral", "STOCH": "bullish|bearish|neutral",
+        "ADX": "bullish|bearish|neutral", "ICHIMOKU": "bullish|bearish|neutral", "OBV": "bullish|bearish|neutral",
+        "KELTNER": "bullish|bearish|neutral", "SAR": "bullish|bearish|neutral", "VWAP": "bullish|bearish|neutral",
+        "MFI": "bullish|bearish|neutral", "SUPERTREND": "bullish|bearish|neutral", "CCI": "bullish|bearish|neutral"
      }},
-     "why": ["Destination analysis", "Permission/Indicator analysis"],
-     "what_to_watch_for": "Specific action to wait for before entering a trade.",
-     "cancel_conditions": ["If 1H candle closes below structural support"],
-     "market_summary": "1 sentence institutional assessment."
+     "why": ["Specific reasoning 1", "Specific reasoning 2"],
+     "what_to_watch_for": "Action needed for entry confirmation.",
+     "cancel_conditions": ["If candle closes below/above level X"],
+     "market_summary": "Sharp institutional assessment."
     }}
     """
 
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            temperature=0.2, 
+            temperature=0.2, # 🔥 Analitik sentez için optimize edildi
             response_format={ "type": "json_object" },
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -193,45 +182,29 @@ def chat():
             parsed = json.loads(raw)
         except Exception as e:
             return jsonify({
-                "direction": "HOLD",
-                "confidence": 0,
-                "risk": "High",
-                "rr": 0,
-                "entry": None,
-                "tp": None,
-                "sl": None,
-                "support_level": None,
-                "resistance_level": None,
-                "liquidity_target": None,
-                "indicator_votes": {},
-                "why": ["System Error: AI failed to parse TA synthesis.", "Fallback protocol engaged."],
-                "what_to_watch_for": "Wait for the next 1H candle and re-analyze.",
-                "cancel_conditions": ["Automatic fallback triggered"],
-                "market_summary": "Analysis failed due to core processing error.",
-                "market_regime": "Unknown",
-                "confluence_score": "Error"
+                "direction": "HOLD", "confidence": 0, "risk": "High", "rr": 0, "entry": None, "tp": None, "sl": None,
+                "support_level": None, "resistance_level": None, "liquidity_target": None, "indicator_votes": {},
+                "why": ["Parse Error"], "what_to_watch_for": "Retry", "cancel_conditions": [], 
+                "market_summary": "Internal error.", "market_regime": "Unknown", "confluence_score": "Error"
             })
 
         direction = parsed.get("direction", "HOLD")
         confidence = int(parsed.get("confidence") or 0)
         rr = float(parsed.get("rr") or 0.0)
 
-        # 🛑 QUANT RISK YÖNETİMİ FİLTRESİ
+        # 🛑 SYSTEM OVERRIDE FİLTRESİ (%65 BARDAĞI)
         if direction in ["LONG", "SHORT"]:
             if rr < MIN_RR or confidence < MIN_CONFIDENCE:
                 parsed["direction"] = "HOLD"
                 parsed["entry"] = None
                 parsed["tp"] = None
                 parsed["sl"] = None
-                parsed["risk"] = "High"
                 if "why" in parsed and isinstance(parsed["why"], list):
-                    parsed["why"].append(f"🚨 QUANT OVERRIDE: Setup lacks institutional viability. Expected Confidence: {MIN_CONFIDENCE}%, Actual: {confidence}%. Trade blocked.")
-                parsed["market_summary"] = "Trade blocked by Quant Risk Management Protocol."
-                parsed["what_to_watch_for"] = f"Awaiting structural alignment with Confidence >= {MIN_CONFIDENCE}%."
+                    parsed["why"].append(f"PROTECTION: Confidence ({confidence}%) or RR ({rr}) failed to meet the {MIN_CONFIDENCE}% institutional threshold.")
+                parsed["market_summary"] = "Trade filtered out by risk management protocol."
 
         parsed["confidence"] = confidence
         parsed["rr"] = rr
-
         return jsonify(parsed)
 
     except Exception as e:
