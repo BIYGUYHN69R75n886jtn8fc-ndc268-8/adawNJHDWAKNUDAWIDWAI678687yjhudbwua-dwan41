@@ -2,12 +2,11 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Ethereum Coin</title>
+  <title>DOGE Coin</title>
   <link rel="stylesheet" href="css.css">
-  <!-- TradingView widget script -->
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
-<body>
+<body data-coin="DOGE" data-coin-name="Dogecoin">
   
   <div id="chat-widget" class="collapsed">
     <div id="chat-header">
@@ -22,8 +21,8 @@
         <div style="display: flex; gap: 10px; align-items: stretch; height: 40px;">
             
             <div style="display: flex; flex: 1; gap: 10px; background: #1e293b; padding: 5px; border-radius: 6px; border: 1px solid #334155;">
-                <input type="number" id="upper-liq" placeholder="📈 Üst TP (Örn: 1993)" style="flex: 1; padding: 5px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: #22c55e; font-size: 12px; font-weight: bold; outline: none;">
-                <input type="number" id="lower-liq" placeholder="📉 Alt SL (Örn: 1954)" style="flex: 1; padding: 5px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: #ef4444; font-size: 12px; font-weight: bold; outline: none;">
+                <input type="text" id="upper-liq" placeholder="📈 Üst TP veya YOK" style="flex: 1; padding: 5px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: #22c55e; font-size: 12px; font-weight: bold; outline: none;">
+                <input type="text" id="lower-liq" placeholder="📉 Alt SL veya YOK" style="flex: 1; padding: 5px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: #ef4444; font-size: 12px; font-weight: bold; outline: none;">
             </div>
 
             <button onclick="getSignal()" style="background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: bold; padding: 0 25px; cursor: pointer; transition: 0.2s; font-size: 14px;">Analiz</button>
@@ -31,11 +30,9 @@
         </div>
     </div>
   </div>
-  <!-- Chat Widget için JavaScript -->
-   
- <script src="chat.js"></script>
+  
+  <script src="chat.js"></script>
 
-  <!-- Sidebar -->
   <div class="sidebar">
     <h1 onclick="location.href='index.html'">
       <img src="logo.png" alt="GRYPTO Logo" class="logo">
@@ -165,12 +162,11 @@
     </div>
   </div>
 
-
   <script>
     /* TradingView Study Mapping – Detaylı analiz ve mini grafikler için */
     const studyMapping = {
       RSI: "RSI@tv-basicstudies",
-      EMA: "MAExp@tv-basicstudies",  // Güncel değer
+      EMA: "MAExp@tv-basicstudies",  
       MACD: "MACD@tv-basicstudies",
       BBANDS: "BB@tv-basicstudies",
       ATR: "ATR@tv-basicstudies",
@@ -181,7 +177,7 @@
       KELTNER: "KLTNR@tv-basicstudies",
       SAR: "PSAR@tv-basicstudies",
       VWAP: "VWAP@tv-basicstudies",
-       MFI: "MF@tv-basicstudies",
+      MFI: "MF@tv-basicstudies",
       SUPERTREND: "STD;Supertrend",
       CCI: "CCI@tv-basicstudies"
     };
@@ -196,7 +192,7 @@
 
     /* -------------------------
        HER İNDİKATÖR İÇİN AYRI API ÇAĞRILARI 
-       API key: d3123a9d9d344ce99c9e05fa75e32b78, interval=15min, symbol=ETH/USD
+       🔥 interval=1h, symbol=DOGE/USD OLARAK GÜNCELLENDİ
     ------------------------- */
     function loadRSI() {
       const xhr = new XMLHttpRequest();
@@ -215,7 +211,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/rsi?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/rsi?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadEMA() {
@@ -235,7 +231,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/ema?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/ema?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadMACD() {
@@ -255,7 +251,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/macd?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/macd?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadBBANDS() {
@@ -264,7 +260,7 @@
         if (this.readyState === this.DONE) {
           try {
             const data = JSON.parse(this.responseText);
-            const upper = parseFloat(data.values[0].upper_band); // Anahtar değişti
+            const upper = parseFloat(data.values[0].upper_band); 
             const lower = parseFloat(data.values[0].lower_band);
             document.querySelector('#bbands p').innerHTML = `BBANDS: ${upper.toFixed(2)} / ${lower.toFixed(2)}`;
           } catch (error) {
@@ -272,7 +268,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/bbands?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD&sd=2&ma_type=SMA"); // Parametre eklendi
+      xhr.open("GET", "https://api.twelvedata.com/bbands?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD&sd=2&ma_type=SMA"); 
       xhr.send(null);
     }
     function loadATR() {
@@ -292,7 +288,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/atr?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/atr?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadSTOCH() {
@@ -301,7 +297,7 @@
         if (this.readyState === this.DONE) {
           try {
             const data = JSON.parse(this.responseText);
-            const k = parseFloat(data.values[0].slow_k); // Slow Stochastic için doğru anahtar
+            const k = parseFloat(data.values[0].slow_k); 
             const d = parseFloat(data.values[0].slow_d);
             document.querySelector('#stoch p').innerHTML = `STOCH: K% ${k.toFixed(2)} / D% ${d.toFixed(2)}`;
           } catch (error) {
@@ -309,7 +305,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/stoch?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD&slow_kperiod=14&slow_dperiod=3"); // Orijinal endpoint
+      xhr.open("GET", "https://api.twelvedata.com/stoch?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD&slow_kperiod=14&slow_dperiod=3"); 
       xhr.send(null);
     }
 
@@ -330,7 +326,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/adx?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/adx?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
 
@@ -343,10 +339,8 @@
           if (!data || data.status !== "ok" || !data.values || data.values.length === 0) {
             throw new Error(data?.message || "ICHIMOKU API hatası");
           }
-          // En güncel veriyi almak için son elemanı kullanıyoruz.
           const latestIndex = data.values.length - 1;
           const ichimokuData = data.values[latestIndex];
-          // API yanıtındaki anahtar isimleri "tenkan_sen" ve "kijun_sen"
           const tenkan = parseFloat(ichimokuData.tenkan_sen);
           const kijun = parseFloat(ichimokuData.kijun_sen);
           document.querySelector('#ichimoku p').innerHTML = `ICHIMOKU: Tenkan ${isNaN(tenkan) ? "N/A" : tenkan.toFixed(2)} | Kijun ${isNaN(kijun) ? "N/A" : kijun.toFixed(2)}`;
@@ -356,7 +350,7 @@
         }
       }
     });
-    xhr.open("GET", "https://api.twelvedata.com/ichimoku?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+    xhr.open("GET", "https://api.twelvedata.com/ichimoku?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
     xhr.send(null);
   }
 
@@ -377,7 +371,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/obv?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/obv?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadKELTNER() {
@@ -389,7 +383,6 @@
           if (!data || data.status !== "ok" || !data.values || data.values.length === 0) {
             throw new Error(data?.message || "KELTNER API hatası");
           }
-          // API yanıtındaki veriler "upper_line" ve "lower_line" anahtarları altında
           const keltnerData = data.values[0];
           const upper = parseFloat(keltnerData.upper_line);
           const lower = parseFloat(keltnerData.lower_line);
@@ -400,7 +393,7 @@
         }
       }
     });
-    xhr.open("GET", "https://api.twelvedata.com/keltner?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+    xhr.open("GET", "https://api.twelvedata.com/keltner?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
     xhr.send(null);
   }
     function loadSAR() {
@@ -420,7 +413,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/sar?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/sar?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadVWAP() {
@@ -440,7 +433,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/vwap?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/vwap?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadMFI() {
@@ -461,8 +454,8 @@
     }
   });
 
-  // time_period=14 ekledim (standart)
-  xhr.open("GET", "https://api.twelvedata.com/mfi?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=ETH/USD");
+  // 🔥 GİZLİ HATA DÜZELTİLDİ: ETH yerine DOGE yapıldı
+  xhr.open("GET", "https://api.twelvedata.com/mfi?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&time_period=14&symbol=DOGE/USD");
   xhr.send(null);
 }
     function loadSUPERTREND() {
@@ -482,7 +475,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/supertrend?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/supertrend?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
     function loadCCI() {
@@ -502,7 +495,7 @@
           }
         }
       });
-      xhr.open("GET", "https://api.twelvedata.com/cci?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=15min&symbol=DOGE/USD");
+      xhr.open("GET", "https://api.twelvedata.com/cci?apikey=d3123a9d9d344ce99c9e05fa75e32b78&interval=1h&symbol=DOGE/USD");
       xhr.send(null);
     }
 
@@ -547,7 +540,7 @@
           width: "100%",
           height: "100",
           symbol: "BINANCE:DOGEUSDT",
-          interval: "15",
+          interval: "60", // 🔥 MİNİ GRAFİKLER 1 SAATLİK OLDU
           theme: "dark",
           locale: "tr",
           hide_side_toolbar: true,
@@ -565,10 +558,8 @@
       initMiniCharts();
     };
 
-    // Her 15 Dakikada API verilerini yenile
-    setInterval(loadAllIndicators, 900000);
+    // 🔥 1 Saatlik grafikler için API yenileme süresi 30 dakikaya (1800000 ms) çıkarıldı
+    setInterval(loadAllIndicators, 1800000);
   </script>
 </body>
 </html>
-
-
