@@ -1,7 +1,7 @@
 // static/chat.js
 (function () {
     const TWELVE_API_KEY = "d3123a9d9d344ce99c9e05fa75e32b78";
-    const INTERVAL = "15min";
+    const INTERVAL = "1h"; // 🔥 BÜYÜK DEĞİŞİM: API'den 1 Saatlik Veri Beklentisi (Sisteme uygun hale getirildi)
   
     function getCoinInfo() {
       const body = document.body;
@@ -74,7 +74,7 @@
       const price = await fetchCurrentPrice(coin);
   
       return (
-  `I am now providing you with ${coinName} data:
+  `I am now providing you with ${coinName} 1H data:
   
   ${coinName} Current price: ${price}
   
@@ -136,38 +136,38 @@
       autoFillChat();
     });
   
- // 🔥 PROFESSIONAL SIGNAL ENGINE DISPLAY (SMART MONEY EDITION)
-  window.getSignal = async function () {
+ // 🔥 PROFESSIONAL SIGNAL ENGINE DISPLAY (1H SMART MONEY EDITION)
+ window.getSignal = async function () {
     const { coinName } = getCoinInfo();
     const chat = document.getElementById("chat-messages");
     if (!chat) return;
   
     const loadingId = "loading-" + Date.now();
-    chat.innerHTML += `<div id="${loadingId}" class="message" style="color:#94a3b8;"><strong>${coinName}:</strong> AI is analyzing 15m charts & liquidity pools... 🧠⚙️</div>`;
+    chat.innerHTML += `<div id="${loadingId}" class="message" style="color:#94a3b8;"><strong>${coinName}:</strong> AI is analyzing 1H charts & liquidity pools... 🧠⚙️</div>`;
     chat.scrollTop = chat.scrollHeight;
   
     try {
-      // 1. OTOMATİK İNDİKATÖR VERİLERİNİ ÇEKİYORUZ (Asla bozulmaz!)
+      // 1. OTOMATİK İNDİKATÖR VERİLERİNİ ÇEKİYORUZ
       let promptText = await buildAutoPrompt();
       
       // 2. KUTULARDAKİ COINGLASS VERİLERİNİ YAKALIYORUZ
       const upperLiq = document.getElementById('upper-liq') ? document.getElementById('upper-liq').value.trim() : "";
       const lowerLiq = document.getElementById('lower-liq') ? document.getElementById('lower-liq').value.trim() : "";
       
-      // 3. EĞER KUTULARA SAYI GİRİLDİYSE, EMRİ İNDİKATÖRLERİN ALTINA "EKLE" (+=)
+      // 3. EĞER KUTULARA SAYI GİRİLDİYSE, EMRİ İNDİKATÖRLERİN ALTINA "EKLE"
       if (upperLiq !== "" || lowerLiq !== "") {
           promptText += `\n\n🚨 COMMANDER OVERRIDE INTELLIGENCE (CRITICAL):\n`;
           promptText += `The user has provided exact 12H Liquidation Map data from Coinglass:\n`;
           if (upperLiq !== "") promptText += `- Massive Upper Liquidity Pool: ${upperLiq}\n`;
           if (lowerLiq !== "") promptText += `- Massive Lower Liquidity Pool: ${lowerLiq}\n`;
-          promptText += `\nINSTRUCTION: If your indicator analysis shows LONG, you MUST set 'liquidity_target' to ${upperLiq || "the upper pool"} and place TP slightly below it to front-run. If indicators show SHORT, target ${lowerLiq || "the lower pool"} and place TP slightly above it. Override your 15m default targets! Adjust SL to maintain a proper RR.\n`;
+          // 🔥 1H DEFAULT TARGETS OLARAK GÜNCELLENDİ
+          promptText += `\nINSTRUCTION: If your indicator analysis shows LONG, you MUST set 'liquidity_target' to ${upperLiq || "the upper pool"} and place TP slightly below it to front-run. If indicators show SHORT, target ${lowerLiq || "the lower pool"} and place TP slightly above it. Override your 1H default targets! Adjust SL to maintain a proper RR.\n`;
       }
 
-      // 4. (Opsiyonel) Eski beyaz sohbet kutusuna not yazıldıysa onu da ekle
+      // 4. Eski beyaz sohbet kutusuna not yazıldıysa onu da ekle
       const inputBox = document.querySelector('.chat-input textarea') || document.querySelector('.chat-input input[type="text"]');
       if (inputBox && inputBox.value.trim() !== "") {
           promptText += "\n\nAdditional User Note: " + inputBox.value.trim();
-          // Gönderdikten sonra kutuyu temizle
           inputBox.value = "";
       }
   
@@ -207,8 +207,7 @@
         <div class="message" style="background: #1e293b; padding: 15px; border-radius: 8px; border-left: 5px solid ${directionColor}; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
           
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <strong style="font-size: 1.2em; color: #fff;">${coinName} 15m Signal</strong>
-            <div style="background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid ${directionColor};">
+            <strong style="font-size: 1.2em; color: #fff;">${coinName} 1H Signal</strong> <div style="background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid ${directionColor};">
                 <b style="color: ${directionColor}; font-size: 1.2em;">${j.direction}</b> 
                 <span style="color:#94a3b8; font-size: 0.9em;">(${j.confidence || 0}%)</span>
             </div>
@@ -277,7 +276,4 @@
     }
   };
   
-
   })();
-
-
