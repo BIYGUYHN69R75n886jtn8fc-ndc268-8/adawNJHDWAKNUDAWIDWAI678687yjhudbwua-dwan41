@@ -5,23 +5,23 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
-print("ULTRA PRO QUANT ENGINE v11 (1H Institutional Liquidity Hunter) is starting...")
+# Profesyonel Loglama Başlatıldı
+print("ULTRA PRO QUANT ENGINE v12 (Institutional Apex - Full Integration) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
 app.secret_key = "grypto_super_gizli_anahtar_degistir_bunu_123" 
 logging.basicConfig(level=logging.INFO)
 
-# 🔑 API ANAHTARINI GÜVENLİ ŞEKİLDE ÇEKİYORUZ
+# 🔑 API ANAHTARI VE BAĞLANTI
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-# 🚀 MOTORU ÇALIŞTIR 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-MIN_RR = 1.5       
-MIN_CONFIDENCE = 65  # 🔥 Kaptan emri: %65 altı işlemler otomatik HOLD.
+# 🔥 SİSTEM PARAMETRELERİ (v12 GÜNCEL)
+MIN_CONFIDENCE = 65  # Kaptan emri: %65 altı otomatik HOLD.
+BASE_MIN_RR = 1.5    # Dinamik RR için taban sınır.
 
-# 👥 MÜŞTERİ VERİTABANI
+# 👥 VIP VERİTABANI
 VIP_USERS = {
     "alpha576": "Ma-3007.1",        
     "alen": "alen.123"
@@ -57,7 +57,7 @@ LOGIN_HTML = """
 <body>
   <div class="login-box">
     <h2 style="color: #05fd05; letter-spacing: 2px; margin-bottom: 5px;">GRYPTO AI</h2>
-    <p style="color: #94a3b8; margin-top: 0; margin-bottom: 25px; font-size: 14px;">Institutional Quant Engine (1H)</p>
+    <p style="color: #94a3b8; margin-top: 0; margin-bottom: 25px; font-size: 14px;">Institutional Apex Engine (1H)</p>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
     <form method="POST">
       <input type="text" name="username" placeholder="Username" required>
@@ -105,70 +105,61 @@ def chat():
 
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
 
-    # 🔥 v11: LİKİDİTE AVCISI + AKILLI SENTEZ PROTOKOLÜ
+    # 🔥 v12: LİKİDİTE AVCISI + BAYESIAN SENTEZ + VOLATİLİTE ADAPTASYONU
     system_prompt = f"""
-    You are a legendary Institutional Quant Trader specializing in 1H Liquidity Hunting.
-    Your mission: Use Liquidity Maps as your Compass (Destination), and Indicators as your Permission (Entry Timing).
+    ROLE: You are the AI-Quant Lead at a Tier-1 Crypto Hedge Fund. 
+    STRATEGY: 1H Liquidity Hunting with Multi-Timeframe Confluence.
+    CURRENT TIME: {current_time_utc}
 
-    INSTITUTIONAL QUANT RULES (THE GOLDEN BALANCE):
-    
-    1. THE DESTINATION (Liquidity Target):
-       - The user provides exact liquidation targets (magnetic zones). These are your PRIMARY objectives. 
-       - If the user types "YOK", "0", or "NONE", that direction is a total void. Never trade into a void.
-       - You MUST NOT ignore these targets. They dictate where the market 'fuel' is located.
+    STRICT OPERATIONAL PROTOCOLS:
+    1. MARKET REGIME (THE CONTEXT): 
+       - Diagnose if the market is in 'Stop Run', 'Trend Continuation', or 'Volatility Exhaustion'.
+       - Use ADX and ATR to set the expectation: High Volatility (Wide SL/TP) vs Low Volatility (Tight SL/TP).
 
-    2. THE PERMISSION (Indicator Synergy):
-       - Indicators are your gatekeepers. You do not blind-trade to a target.
-       - If Destination is UP (Whale Target exists), but structural trend (VWAP, EMA) is heavily Bearish, you must wait for a "Trend Exhaustion" signal. 
-       - If RSI is low (<35) or price touches Lower BBands, this is your permission to hunt the Upper Liquidity Target (Reversal Trade).
-       - Only output HOLD if the market is aggressively trending AWAY from the target with high volume conviction (OBV/MFI alignment).
+    2. LIQUIDITY GRAVITY (THE COMPASS):
+       - User Liquidity Targets (numeric) are your Primary Mission.
+       - CALCULATE: If price is moving to the target but OBV/MFI is decreasing, mark as 'Bull Trap'.
+       - NEVER trade into "YOK" or "0" zones. They are liquidity vacuums.
 
-    3. MARKET REGIME SYNTHESIS (NO SIMPLE COUNTING):
-       - Determine if the market is Trending, Ranging, or Exhausted. 
-       - Volume (OBV/MFI) is the ultimate truth. A move to liquidity without volume support is a trap.
+    3. BAYESIAN WEIGHTED SYNTHESIS:
+       - No simple counting. Use weighted conviction:
+         * SMART MONEY FLOW (OBV, MFI, VWAP, Volume) = 40%
+         * MOMENTUM (RSI, MACD, STOCH) = 30%
+         * STRUCTURAL PERMISSION (EMA, Supertrend, Ichimoku) = 30%
+       - If total probability < {MIN_CONFIDENCE}%, output HOLD.
 
-    4. RISK MANAGEMENT (1H PROTOCOL):
-       - 1H trades require logical breathing room. Ensure Entry, SL, and TP reflect institutional levels.
-       - Minimum viable RR is {MIN_RR}.
+    4. RISK & EXECUTION RIGOR:
+       - DINAMIC RR: Target RR 2.5+ for Trending markets; 1.5 for Ranging markets.
+       - SL PLACEMENT: Use ATR. Place SL at least 1.2x ATR away from the entry to avoid 'Wick Hunting'.
+       - ENTRY: Prefer Limit Entries at structural levels (VWAP/EMA) if RSI is overextended.
 
-    5. SCORING REALITY: 
-       - Align Destination and Permission. 
-       - If Target and Indicators match perfectly: 80-95% Confidence.
-       - If Target exists but indicators are slightly lagging/exhausted: 65-75% Confidence (Reversal setup).
-       - If Target exists but indicators are violently opposing: Output HOLD and explain the "Conflict of Interest".
+    5. MULTI-TIMEFRAME OVERRIDE:
+       - If 1H signal is LONG but you detect 4H structural breakdown, reduce confidence by 20%.
 
-    JSON FORMAT EXACTLY AS BELOW:
+    JSON OUTPUT FORMAT:
     {{
      "direction": "LONG|SHORT|HOLD",
-     "market_regime": "Trending|Volatility Squeeze|Ranging|Exhausted",
-     "entry": float or null,
-     "tp": float or null,
-     "sl": float or null,
-     "support_level": float or null,
-     "resistance_level": float or null,
-     "liquidity_target": float or null,
+     "market_regime": "Diagnosis",
+     "entry": float, "tp": float, "sl": float,
+     "support_level": float, "resistance_level": float,
+     "liquidity_target": float,
      "confidence": integer 0-100,
      "risk": "Low|Medium|High",
      "rr": float,
-     "confluence_score": "Brief summary of confluence factors",
-     "indicator_votes": {{
-        "RSI": "bullish|bearish|neutral", "EMA": "bullish|bearish|neutral", "MACD": "bullish|bearish|neutral",
-        "BBANDS": "bullish|bearish|neutral", "ATR": "bullish|bearish|neutral", "STOCH": "bullish|bearish|neutral",
-        "ADX": "bullish|bearish|neutral", "ICHIMOKU": "bullish|bearish|neutral", "OBV": "bullish|bearish|neutral",
-        "KELTNER": "bullish|bearish|neutral", "SAR": "bullish|bearish|neutral", "VWAP": "bullish|bearish|neutral",
-        "MFI": "bullish|bearish|neutral", "SUPERTREND": "bullish|bearish|neutral", "CCI": "bullish|bearish|neutral"
-     }},
-     "why": ["Specific reasoning 1", "Specific reasoning 2"],
-     "what_to_watch_for": "Action needed for entry confirmation.",
-     "cancel_conditions": ["If candle closes below/above level X"],
-     "market_summary": "Sharp institutional assessment."
+     "confluence_score": "Bayesian Summary",
+     "indicator_votes": {{ "RSI": "status", "EMA": "status", ... }},
+     "why": ["Professional analysis 1", "Analysis 2"],
+     "what_to_watch_for": "Trigger for entry",
+     "cancel_conditions": ["Invalidation level"],
+     "market_summary": "1-sentence sharp tactical brief."
     }}
     """
 
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            temperature=0.2, # 🔥 Analitik sentez için optimize edildi
+            temperature=0.2,
+            top_p=0.1, # 🔥 v12: Mantıksal tutarlılığı maksimize eder
             response_format={ "type": "json_object" },
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -177,43 +168,41 @@ def chat():
         )
 
         raw = response.choices[0].message.content.strip()
-
-        try:
-            parsed = json.loads(raw)
-        except Exception as e:
-            return jsonify({
-                "direction": "HOLD", "confidence": 0, "risk": "High", "rr": 0, "entry": None, "tp": None, "sl": None,
-                "support_level": None, "resistance_level": None, "liquidity_target": None, "indicator_votes": {},
-                "why": ["Parse Error"], "what_to_watch_for": "Retry", "cancel_conditions": [], 
-                "market_summary": "Internal error.", "market_regime": "Unknown", "confluence_score": "Error"
-            })
+        parsed = json.loads(raw)
 
         direction = parsed.get("direction", "HOLD")
         confidence = int(parsed.get("confidence") or 0)
         rr = float(parsed.get("rr") or 0.0)
 
-        # 🛑 SYSTEM OVERRIDE FİLTRESİ (%65 BARDAĞI)
+        # 🛑 APEX RISK FİLTRESİ (Gelişmiş v12 Koruma)
         if direction in ["LONG", "SHORT"]:
-            if rr < MIN_RR or confidence < MIN_CONFIDENCE:
+            # Güven puanı barajı kontrolü
+            if confidence < MIN_CONFIDENCE:
                 parsed["direction"] = "HOLD"
-                parsed["entry"] = None
-                parsed["tp"] = None
-                parsed["sl"] = None
                 if "why" in parsed and isinstance(parsed["why"], list):
-                    parsed["why"].append(f"PROTECTION: Confidence ({confidence}%) or RR ({rr}) failed to meet the {MIN_CONFIDENCE}% institutional threshold.")
-                parsed["market_summary"] = "Trade filtered out by risk management protocol."
+                    parsed["why"].append(f"🚨 APEX GUARD: Confidence ({confidence}%) below threshold ({MIN_CONFIDENCE}%).")
+            
+            # Dinamik RR kontrolü
+            if rr < BASE_MIN_RR:
+                parsed["direction"] = "HOLD"
+                if "why" in parsed and isinstance(parsed["why"], list):
+                    parsed["why"].append(f"🚨 APEX GUARD: RR ({rr}) is mathematically inefficient for 1H structure.")
 
-        parsed["confidence"] = confidence
-        parsed["rr"] = rr
         return jsonify(parsed)
 
     except Exception as e:
-        logging.exception("An error occurred:")
-        return jsonify({"error": str(e)}), 500
+        logging.exception("QUANT ENGINE CRITICAL ERROR:")
+        return jsonify({
+            "direction": "HOLD",
+            "why": ["Engine Error: " + str(e)],
+            "market_summary": "System failure. Do not trade."
+        }), 500
 
 @app.route('/<path:path>')
 def static_proxy(path):
     return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Render ve yerel ortam uyumluluğu için port ayarı
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
