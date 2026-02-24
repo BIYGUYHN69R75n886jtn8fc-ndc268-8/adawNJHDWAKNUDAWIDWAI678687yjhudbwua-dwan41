@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify, send_from_directory, session, redirec
 from openai import OpenAI
 
 # Profesyonel Loglama Başlatıldı
-print("ULTRA PRO QUANT ENGINE v18 (Deterministic Apex - Zero Hallucination) is starting...")
+print("ULTRA PRO QUANT ENGINE v20 (Pro Analyst Synthesis - AI RR Management) is starting...")
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = "grypto_super_gizli_anahtar_degistir_bunu_123" 
@@ -16,9 +16,9 @@ logging.basicConfig(level=logging.INFO)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 🔥 SİSTEM PARAMETRELERİ
+# 🔥 SİSTEM PARAMETRELERİ (Kaptan Emriyle Güncellendi)
 MIN_CONFIDENCE = 65  
-BASE_MIN_RR = 1.5    
+BASE_MIN_RR = 1.4    # RR sınırı 1.4'e esnetildi.
 
 # 👥 MÜŞTERİ VERİTABANI
 VIP_USERS = {"alpha576": "Ma-3007.1", "alen": "alen.123"} 
@@ -63,7 +63,7 @@ LOGIN_HTML = """
 </head>
 <body>
   <div class="login-box">
-    <h2 style="color: #05fd05;">GRYPTO AI</h2><p style="color: #94a3b8; font-size: 14px;">Institutional Sniper Engine v18</p>
+    <h2 style="color: #05fd05;">GRYPTO AI</h2><p style="color: #94a3b8; font-size: 14px;">Institutional Sniper Engine v20</p>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
     <form method="POST"><input type="text" name="username" placeholder="Username" required><input type="password" name="password" placeholder="Password" required><button type="submit">Login to Dashboard</button></form>
   </div>
@@ -98,18 +98,17 @@ def chat():
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
     live_news = get_live_market_context()
 
-    # 🔥 v18: OYLAMA KALDIRILDI, SADECE EXECUTION (INFAZ) YAPACAK.
+    # 🔥 v20: PRO ANALYST SYNTHESIS PROMPT
     system_prompt = f"""
-    ROLE: Tier-1 Crypto Hedge Fund Quant Executioner.
-    LIVE MACRO: {live_news}
+    ROLE: Tier-1 Crypto Hedge Fund Quant Executioner & Pro Analyst.
+    LIVE MACRO CONTEXT: {live_news}
     CURRENT TIME: {current_time_utc}
 
     PROTOCOL:
-    1. DO NOT score indicators. The user prompt already contains the absolute, hardcoded mathematical Bull/Bear score. Trust that score.
-    2. Focus ONLY on matching the mathematical score and Live News against the user's Liquidation Target (tp/sl).
-    3. Calculate the absolute Risk/Reward (RR) ratio.
+    1. SYNTHESIS OVER TALLY: Do not just blindly follow the Bull/Bear tally. Synthesize the provided hardcoded mathematical score with the Live Macro Context (Fear/Greed & News) and the user's Liquidation Magnets. Macro overrides micro.
+    2. ACCURATE RR CALCULATION: You MUST calculate the exact Risk/Reward (RR) ratio accurately based on your Entry, TP, and SL. Do not hallucinate this number.
+    3. EXECUTION: Output HOLD if Confidence < {MIN_CONFIDENCE}% OR your calculated RR < {BASE_MIN_RR}.
     4. Provide 'partial_tp' at 50% distance.
-    5. Output HOLD if Confidence < {MIN_CONFIDENCE}% OR RR < {BASE_MIN_RR}.
 
     JSON OUTPUT EXACTLY AS BELOW:
     {{
@@ -126,7 +125,7 @@ def chat():
      "risk": "Low|Medium|High",
      "rr": float,
      "confluence_score": "Brief summary",
-     "why": ["Analysis 1", "Analysis 2"],
+     "why": ["Deep analyst reasoning 1", "Deep analyst reasoning 2"],
      "what_to_watch_for": "Confirmation",
      "cancel_conditions": ["Invalidation level"],
      "market_summary": "Institutional summary"
@@ -147,11 +146,12 @@ def chat():
         confidence = int(parsed.get("confidence") or 0)
         rr = float(parsed.get("rr") or 0.0)
 
-        # 🛑 FIXED SNIPER GUARD
+        # 🛑 RR Yetkisi AI'da, sadece limit kontrolü yapıyoruz (1.4)
         if direction in ["LONG", "SHORT"]:
             if confidence < MIN_CONFIDENCE or rr < BASE_MIN_RR:
                 parsed["direction"] = "HOLD"
-                if "why" in parsed: parsed["why"].append(f"Sniper Guard: Confidence ({confidence}%) or RR ({rr}) failed minimums.")
+                if "why" in parsed: 
+                    parsed["why"].append(f"🚨 Sniper Guard: Confidence ({confidence}%) or AI-calculated RR ({rr}) failed Apex threshold (Target RR: {BASE_MIN_RR}).")
 
         return jsonify(parsed)
 
