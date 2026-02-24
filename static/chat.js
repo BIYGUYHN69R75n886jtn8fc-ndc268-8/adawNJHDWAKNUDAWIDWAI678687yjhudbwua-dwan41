@@ -42,8 +42,7 @@
       } catch { return "N/A"; }
     }
 
-    // 🔥 DEĞİŞMEZ MATEMATİK MOTORU (DETERMINISTIC SCORE) 🔥
-    // Boşluk hatası giderildi, fonksiyon kusursuz çalışıyor.
+    // 🔥 TIER-1 HEDGE FUND DETERMINISTIC ENGINE (FULL 15-INDICATOR SYNTHESIS) 🔥
     function calculateHardMath(values, currentPriceStr) {
         let p = parseFloat(currentPriceStr);
         let bull = 0, bear = 0, neutral = 0;
@@ -51,68 +50,83 @@
 
         const parseVal = (str) => parseFloat((str || "").replace(/[^0-9.-]/g, ''));
 
-        // 1. RSI
+        // 1. RSI (Extreme Reversion: <= 30 Bull, >= 70 Bear)
         let rsi = parseVal(values.RSI);
-        if (!isNaN(rsi)) { if (rsi > 55) bull++; else if (rsi < 45) bear++; else neutral++; }
+        if (!isNaN(rsi)) { if (rsi <= 30) bull++; else if (rsi >= 70) bear++; else neutral++; }
 
-        // 2. MACD
-        let macd = parseVal(values.MACD);
-        if (!isNaN(macd)) { if (macd > 0) bull++; else if (macd < 0) bear++; else neutral++; }
-
-        // 3. EMA
-        let ema = parseVal(values.EMA);
-        if (!isNaN(ema)) { if (p > ema) bull++; else if (p < ema) bear++; else neutral++; }
-
-        // 4. VWAP
-        let vwap = parseVal(values.VWAP);
-        if (!isNaN(vwap)) { if (p > vwap) bull++; else if (p < vwap) bear++; else neutral++; }
-
-        // 5. SAR
-        let sar = parseVal(values.SAR);
-        if (!isNaN(sar)) { if (p > sar) bull++; else if (p < sar) bear++; else neutral++; }
-
-        // 6. Supertrend
-        let st = parseVal(values.Supertrend);
-        if (!isNaN(st)) { if (p > st) bull++; else if (p < st) bear++; else neutral++; }
-
-        // 7. MFI
+        // 2. MFI (Money Flow Extreme: <= 20 Bull, >= 80 Bear)
         let mfi = parseVal(values.MFI);
-        if (!isNaN(mfi)) { if (mfi > 60) bull++; else if (mfi < 40) bear++; else neutral++; }
+        if (!isNaN(mfi)) { if (mfi <= 20) bull++; else if (mfi >= 80) bear++; else neutral++; }
 
-        // 8. CCI
+        // 3. CCI (Commodity Channel Extreme: <= -100 Bull, >= 100 Bear)
         let cci = parseVal(values.CCI);
-        if (!isNaN(cci)) { if (cci > 100) bull++; else if (cci < -100) bear++; else neutral++; }
+        if (!isNaN(cci)) { if (cci <= -100) bull++; else if (cci >= 100) bear++; else neutral++; }
 
-        // 9. BBANDS
+        // 4. STOCH (Stochastic Extreme: <= 20 Bull, >= 80 Bear)
+        if (values.STOCH && values.STOCH.includes('/')) {
+            let parts = values.STOCH.split('/');
+            let k = parseVal(parts[0]), d = parseVal(parts[1]);
+            if (k <= 20 && d <= 20) bull++; else if (k >= 80 && d >= 80) bear++; else neutral++;
+        }
+
+        // 5. BBANDS (Price vs Bands: Fiyat <= Alt Bull, Fiyat >= Üst Bear)
         if (values.BBANDS && values.BBANDS.includes('/')) {
             let parts = values.BBANDS.split('/');
             let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
             if (p <= lower) bull++; else if (p >= upper) bear++; else neutral++;
         }
 
-        // 10. KELTNER
+        // 6. KELTNER (Price vs Channels: Fiyat <= Alt Bull, Fiyat >= Üst Bear)
         if (values.KELTNER && values.KELTNER.includes('|')) {
             let parts = values.KELTNER.split('|');
             let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
             if (p <= lower) bull++; else if (p >= upper) bear++; else neutral++;
         }
 
-        // 11. STOCH
-        if (values.STOCH && values.STOCH.includes('/')) {
-            let parts = values.STOCH.split('/');
-            let k = parseVal(parts[0]), d = parseVal(parts[1]);
-            if (k < 25 && d < 25) bull++; else if (k > 75 && d > 75) bear++; else neutral++;
-        }
+        // 7. MACD (Momentum Trend: > 0 Bull, < 0 Bear)
+        let macd = parseVal(values.MACD);
+        if (!isNaN(macd)) { if (macd > 0) bull++; else if (macd < 0) bear++; else neutral++; }
 
-        // 12. ICHIMOKU
+        // 8. EMA (Price vs Avg: p > EMA Bull, p < EMA Bear)
+        let ema = parseVal(values.EMA);
+        if (!isNaN(ema)) { if (p > ema) bull++; else if (p < ema) bear++; else neutral++; }
+
+        // 9. VWAP (Institutional Cost Basis: p > VWAP Bull, p < VWAP Bear)
+        let vwap = parseVal(values.VWAP);
+        if (!isNaN(vwap)) { if (p > vwap) bull++; else if (p < vwap) bear++; else neutral++; }
+
+        // 10. SAR (Parabolic Trend: p > SAR Bull, p < SAR Bear)
+        let sar = parseVal(values.SAR);
+        if (!isNaN(sar)) { if (p > sar) bull++; else if (p < sar) bear++; else neutral++; }
+
+        // 11. SUPERTREND (Macro Trend: p > ST Bull, p < ST Bear)
+        let st = parseVal(values.Supertrend);
+        if (!isNaN(st)) { if (p > st) bull++; else if (p < st) bear++; else neutral++; }
+
+        // 12. ICHIMOKU (Equilibrium: p > Her İkisi Bull, p < Her İkisi Bear)
         if (values.ICHIMOKU && values.ICHIMOKU.includes('|')) {
             let parts = values.ICHIMOKU.split('|');
             let tenkan = parseVal(parts[0]), kijun = parseVal(parts[1]);
             if (p > tenkan && p > kijun) bull++; else if (p < tenkan && p < kijun) bear++; else neutral++;
         }
 
-        // Kalan 3 indikatör (OBV, ATR, ADX) spesifik yön belirtmediği için Neutral sayılır.
-        neutral += 3;
+        // 🔥 13. ADX (Trend Gücü Onayı) 🔥
+        let adx = parseVal(values.ADX);
+        let currentEma = parseVal(values.EMA);
+        if (!isNaN(adx) && !isNaN(currentEma)) {
+            if (adx > 25) { 
+                if (p > currentEma) bull++; else if (p < currentEma) bear++; else neutral++; 
+            } else { neutral++; }
+        } else { neutral++; }
+
+        // 🔥 14. OBV (Makro Hacim Baskısı) 🔥
+        let obv = parseVal(values.OBV);
+        if (!isNaN(obv)) {
+            if (obv > 0) bull++; else if (obv < 0) bear++; else neutral++;
+        } else { neutral++; }
+
+        // 15. ATR (Saf Volatilite - Yön Belirtmez)
+        neutral++;
 
         return { bull, bear, neutral };
     }
@@ -213,7 +227,7 @@
       if (j.direction === "LONG") directionColor = "#22c55e"; 
       if (j.direction === "SHORT") directionColor = "#ef4444"; 
   
-      // 🔥 OYLARI YAPAY ZEKADAN DEĞİL, DEĞİŞMEZ MATEMATİK MOTORUNDAN (JS) ALIYORUZ!
+      // 🔥 OYLARI DOĞRUDAN DETERMINISTIC ENGINE'DEN OKUYORUZ
       let bullCount = window.deterministicScores ? window.deterministicScores.bull : 0;
       let bearCount = window.deterministicScores ? window.deterministicScores.bear : 0;
       let neutralCount = window.deterministicScores ? window.deterministicScores.neutral : 15;
