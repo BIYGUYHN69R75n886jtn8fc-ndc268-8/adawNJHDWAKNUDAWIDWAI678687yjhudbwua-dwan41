@@ -10,19 +10,24 @@ print("ULTRA PRO QUANT ENGINE v19 (Execution-First, Deterministic Guards) is sta
 
 app = Flask(__name__, static_folder='static')
 
-app = Flask(__name__, static_folder='static')
-app.secret_key = "grypto_super_gizli_anahtar_degistir_bunu_123" 
+# Single-user offline is fine, but keep configurable.
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "grypto_super_gizli_anahtar_degistir_bunu_123")
+
 logging.basicConfig(level=logging.INFO)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    logging.warning("OPENAI_API_KEY is missing. /chat will fail until you set it.")
+
+MODEL_NAME = os.environ.get("OPENAI_MODEL", "gpt-4o")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 🔥 SİSTEM PARAMETRELERİ
-MIN_CONFIDENCE = 65  
-BASE_MIN_RR = 1.5    
+# 🔥 SYSTEM PARAMETERS
+MIN_CONFIDENCE = 65
+BASE_MIN_RR = 1.5
 
-# 👥 MÜŞTERİ VERİTABANI
-VIP_USERS = {"alpha576": "Ma-3007.1", "alen": "alen.123"} 
+# 👥 VIP USERS
+VIP_USERS = {"alpha576": "Ma-3007.1", "alen": "alen.123"}
 
 # --- Live context cache (prevents jitter + reduces latency) ---
 _LIVE_CTX_CACHE = {"ts": 0.0, "value": "Live Context: Unavailable."}
@@ -256,4 +261,3 @@ def static_proxy(path):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
-
