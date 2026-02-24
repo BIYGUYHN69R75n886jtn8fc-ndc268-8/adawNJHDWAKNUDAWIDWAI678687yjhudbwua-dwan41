@@ -1,7 +1,7 @@
 // static/chat.js
 (function () {
     const TWELVE_API_KEY = "d3123a9d9d344ce99c9e05fa75e32b78";
-    const INTERVAL = "1h"; // 1 Saatlik Veri Beklentisi
+    const INTERVAL = "1h"; // 🔥 BÜYÜK DEĞİŞİM: API'den 1 Saatlik Veri Beklentisi (Sisteme uygun hale getirildi)
   
     function getCoinInfo() {
       const body = document.body;
@@ -12,6 +12,7 @@
       }
   
       const file = (window.location.pathname.split("/").pop() || "").toLowerCase();
+  
       const map = {
         "bitcoin.html": { coin: "BTC", coinName: "Bitcoin" },
         "ethereum.html": { coin: "ETH", coinName: "Ethereum" },
@@ -25,6 +26,7 @@
         "trx.html": { coin: "TRX", coinName: "TRON (TRX)" },
         "index.html": { coin: "ETH", coinName: "Ethereum" },
       };
+  
       return map[file] || { coin: "ETH", coinName: "Ethereum" };
     }
   
@@ -50,6 +52,7 @@
   
     async function buildAutoPrompt() {
       const { coin, coinName } = getCoinInfo();
+  
       const values = {
         RSI: readIndicatorText("rsi"),
         EMA: readIndicatorText("ema"),
@@ -67,6 +70,7 @@
         Supertrend: readIndicatorText("supertrend"),
         CCI: readIndicatorText("cci"),
       };
+  
       const price = await fetchCurrentPrice(coin);
   
       return (
@@ -97,7 +101,9 @@
     async function autoFillChat() {
       const textarea = document.getElementById("user-input");
       if (!textarea) return;
+  
       textarea.value = await buildAutoPrompt();
+  
       setTimeout(async () => {
         textarea.value = await buildAutoPrompt();
       }, 1500);
@@ -124,70 +130,14 @@
         });
       }
     }
-
-    // 🔥 MUHTEŞEM EKLENTİ: CANLI İŞLEM SAATİ RADARI (SAĞ ÜST KÖŞE)
-    function addSessionRadar() {
-        const radarHTML = `
-          <div id="session-radar" style="position: fixed; top: 20px; right: 20px; background: rgba(15, 23, 42, 0.9); border: 1px solid #334155; border-radius: 8px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; color: #cbd5e1; font-family: sans-serif; font-size: 13px; width: 240px; transition: 0.3s;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #475569; padding-bottom: 8px; margin-bottom: 10px;">
-              <strong style="color: #38bdf8; font-size: 14px;">🎯 Savaş Odası Radarı</strong>
-              <span id="live-clock" style="color: #fff; font-weight: bold; font-size: 16px; letter-spacing: 1px;">--:--</span>
-            </div>
-            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
-              <li id="t1">🇬🇧 10:45 - 11:15 <span style="color:#64748b; font-size:11px;">(Londra)</span></li>
-              <li id="t2">🇺🇸 14:45 - 15:15 <span style="color:#64748b; font-size:11px;">(Pre-NY)</span></li>
-              <li id="t3" style="color: #fbbf24; font-weight: bold;">👑 18:45 - 19:15 <span style="color:#64748b; font-size:11px;">(Altın Saat)</span></li>
-              <li id="t4">🌙 22:45 - 23:15 <span style="color:#64748b; font-size:11px;">(Kapanış)</span></li>
-            </ul>
-            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #475569; text-align: center; font-size: 14px;">
-              Durum: <strong id="radar-status" style="color: #ef4444; letter-spacing: 1px;">🔴 BEKLE</strong>
-            </div>
-          </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', radarHTML);
-  
-        // Saati ve Durumu Saniyede Bir Güncelle
-        setInterval(() => {
-          const now = new Date();
-          const hh = now.getHours().toString().padStart(2, '0');
-          const mm = now.getMinutes().toString().padStart(2, '0');
-          const ss = now.getSeconds().toString().padStart(2, '0');
-          
-          document.getElementById('live-clock').innerText = `${hh}:${mm}:${ss}`;
-  
-          const timeNum = parseInt(hh) * 100 + parseInt(mm); // Örn: 1845
-  
-          let isActive = false;
-          if (timeNum >= 1045 && timeNum <= 1115) isActive = true;
-          else if (timeNum >= 1445 && timeNum <= 1515) isActive = true;
-          else if (timeNum >= 1845 && timeNum <= 1915) isActive = true;
-          else if (timeNum >= 2245 && timeNum <= 2315) isActive = true;
-  
-          const statusEl = document.getElementById('radar-status');
-          const radarBox = document.getElementById('session-radar');
-          
-          if (isActive) {
-            statusEl.innerText = "🟢 İŞLEM VAKTİ!";
-            statusEl.style.color = "#22c55e";
-            radarBox.style.border = "1px solid #22c55e"; // Kutu kenarı yeşil olur
-            radarBox.style.boxShadow = "0 0 15px rgba(34, 197, 94, 0.3)";
-          } else {
-            statusEl.innerText = "🔴 BEKLE";
-            statusEl.style.color = "#ef4444";
-            radarBox.style.border = "1px solid #334155";
-            radarBox.style.boxShadow = "0 4px 15px rgba(0,0,0,0.6)";
-          }
-        }, 1000);
-    }
   
     document.addEventListener("DOMContentLoaded", () => {
       hookChatUI();
       autoFillChat();
-      addSessionRadar(); // Radarı başlat!
     });
   
- // 🔥 PROFESSIONAL SIGNAL ENGINE DISPLAY (1H SMART MONEY EDITION)
- window.getSignal = async function () {
+  // 🔥 PROFESSIONAL SIGNAL ENGINE DISPLAY (1H SMART MONEY EDITION)
+  window.getSignal = async function () {
     const { coinName } = getCoinInfo();
     const chat = document.getElementById("chat-messages");
     if (!chat) return;
@@ -197,25 +147,31 @@
     chat.scrollTop = chat.scrollHeight;
   
     try {
+      // 1. OTOMATİK İNDİKATÖR VERİLERİNİ ÇEKİYORUZ
       let promptText = await buildAutoPrompt();
       
+      // 2. KUTULARDAKİ COINGLASS VERİLERİNİ YAKALIYORUZ
       const upperLiq = document.getElementById('upper-liq') ? document.getElementById('upper-liq').value.trim() : "";
       const lowerLiq = document.getElementById('lower-liq') ? document.getElementById('lower-liq').value.trim() : "";
       
+      // 3. EĞER KUTULARA SAYI GİRİLDİYSE, EMRİ İNDİKATÖRLERİN ALTINA "EKLE"
       if (upperLiq !== "" || lowerLiq !== "") {
           promptText += `\n\n🚨 COMMANDER OVERRIDE INTELLIGENCE (CRITICAL):\n`;
           promptText += `The user has provided exact 12H Liquidation Map data from Coinglass:\n`;
           if (upperLiq !== "") promptText += `- Massive Upper Liquidity Pool: ${upperLiq}\n`;
           if (lowerLiq !== "") promptText += `- Massive Lower Liquidity Pool: ${lowerLiq}\n`;
+          // 🔥 1H DEFAULT TARGETS OLARAK GÜNCELLENDİ
           promptText += `\nINSTRUCTION: If your indicator analysis shows LONG, you MUST set 'liquidity_target' to ${upperLiq || "the upper pool"} and place TP slightly below it to front-run. If indicators show SHORT, target ${lowerLiq || "the lower pool"} and place TP slightly above it. Override your 1H default targets! Adjust SL to maintain a proper RR.\n`;
       }
-
+  
+      // 4. Eski beyaz sohbet kutusuna not yazıldıysa onu da ekle
       const inputBox = document.querySelector('.chat-input textarea') || document.querySelector('.chat-input input[type="text"]');
       if (inputBox && inputBox.value.trim() !== "") {
           promptText += "\n\nAdditional User Note: " + inputBox.value.trim();
           inputBox.value = "";
       }
   
+      // 5. TÜM PAKETİ YAPAY ZEKAYA GÖNDER
       const r = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -236,7 +192,7 @@
       let directionColor = "#eab308"; 
       if (j.direction === "LONG") directionColor = "#22c55e"; 
       if (j.direction === "SHORT") directionColor = "#ef4444"; 
-
+  
       let bullCount = 0, bearCount = 0, neutralCount = 0;
       if (j.indicator_votes) {
           Object.values(j.indicator_votes).forEach(vote => {
@@ -246,12 +202,12 @@
           });
       }
   
+      // 6. EKRANA YAZDIRMA KISMI (TASARIM - EKSİK PARTIAL TP EKLENDİ)
       chat.innerHTML += `
         <div class="message" style="background: #1e293b; padding: 15px; border-radius: 8px; border-left: 5px solid ${directionColor}; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
           
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <strong style="font-size: 1.2em; color: #fff;">${coinName} 1H Signal</strong>
-            <div style="background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid ${directionColor};">
+            <strong style="font-size: 1.2em; color: #fff;">${coinName} 1H Signal</strong> <div style="background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid ${directionColor};">
                 <b style="color: ${directionColor}; font-size: 1.2em;">${j.direction}</b> 
                 <span style="color:#94a3b8; font-size: 0.9em;">(${j.confidence || 0}%)</span>
             </div>
@@ -271,7 +227,7 @@
                  <span style="color: #ef4444;">🔴 ${bearCount} Bear</span>
               </div>
           </div>
-
+  
           <div style="background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center;">
               <b>🎯 Whale Target (TP):</b> <span style="color:#f87171; font-size: 1.1em; font-weight: bold;">${j.liquidity_target !== null ? j.liquidity_target : "N/A"}</span>
           </div>
@@ -280,14 +236,15 @@
           <div style="margin-bottom: 15px;">
               Risk: <b>${j.risk ?? "-"}</b> | RR (Risk/Reward): <b>${j.rr ?? "-"}</b><br/>
               Entry: <b style="color:#fff;">${j.entry ?? "Pending"}</b><br/>
-              Take Profit (TP): <b style="color:#22c55e;">${j.tp ?? "-"}</b> | Stop Loss (SL): <b style="color:#ef4444;">${j.sl ?? "-"}</b>
+              Safe Profit (Partial TP): <b style="color:#eab308;">${j.partial_tp ?? "-"}</b><br/>
+              Take Profit (Final TP): <b style="color:#22c55e;">${j.tp ?? "-"}</b> | Stop Loss (SL): <b style="color:#ef4444;">${j.sl ?? "-"}</b>
           </div>
           ` : ''}
           
           <b style="color:#e2e8f0;">Market Summary & Session:</b><br/>
           <span style="color:#cbd5e1; font-style: italic;">"${j.market_summary ?? "-"}"</span>
           <br/><br/>
-
+  
           ${j.direction === "HOLD" && j.what_to_watch_for ? `
           <div style="background: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; padding: 8px; border-radius: 4px; margin-bottom: 10px;">
               <b style="color:#eab308;">Tactic (What to watch for):</b><br/>
