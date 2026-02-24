@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify, send_from_directory, session, redirec
 from openai import OpenAI
 
 # Profesyonel Loglama Başlatıldı
-print("ULTRA PRO QUANT ENGINE v20 (Pro Analyst Synthesis - AI RR Management) is starting...")
+print("ULTRA PRO QUANT ENGINE v21 (Absolute Python Risk Manager - Zero Lies) is starting...")
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = "grypto_super_gizli_anahtar_degistir_bunu_123" 
@@ -16,9 +16,9 @@ logging.basicConfig(level=logging.INFO)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 🔥 SİSTEM PARAMETRELERİ (Kaptan Emriyle Güncellendi)
+# 🔥 SİSTEM PARAMETRELERİ
 MIN_CONFIDENCE = 65  
-BASE_MIN_RR = 1.4    # RR sınırı 1.4'e esnetildi.
+BASE_MIN_RR = 1.4    # Kaptanın onayladığı esnetilmiş RR tabanı.
 
 # 👥 MÜŞTERİ VERİTABANI
 VIP_USERS = {"alpha576": "Ma-3007.1", "alen": "alen.123"} 
@@ -63,7 +63,7 @@ LOGIN_HTML = """
 </head>
 <body>
   <div class="login-box">
-    <h2 style="color: #05fd05;">GRYPTO AI</h2><p style="color: #94a3b8; font-size: 14px;">Institutional Sniper Engine v20</p>
+    <h2 style="color: #05fd05;">GRYPTO AI</h2><p style="color: #94a3b8; font-size: 14px;">Institutional Sniper Engine v21</p>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
     <form method="POST"><input type="text" name="username" placeholder="Username" required><input type="password" name="password" placeholder="Password" required><button type="submit">Login to Dashboard</button></form>
   </div>
@@ -98,7 +98,6 @@ def chat():
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
     live_news = get_live_market_context()
 
-    # 🔥 v20: PRO ANALYST SYNTHESIS PROMPT
     system_prompt = f"""
     ROLE: Tier-1 Crypto Hedge Fund Quant Executioner & Pro Analyst.
     LIVE MACRO CONTEXT: {live_news}
@@ -106,9 +105,8 @@ def chat():
 
     PROTOCOL:
     1. SYNTHESIS OVER TALLY: Do not just blindly follow the Bull/Bear tally. Synthesize the provided hardcoded mathematical score with the Live Macro Context (Fear/Greed & News) and the user's Liquidation Magnets. Macro overrides micro.
-    2. ACCURATE RR CALCULATION: You MUST calculate the exact Risk/Reward (RR) ratio accurately based on your Entry, TP, and SL. Do not hallucinate this number.
-    3. EXECUTION: Output HOLD if Confidence < {MIN_CONFIDENCE}% OR your calculated RR < {BASE_MIN_RR}.
-    4. Provide 'partial_tp' at 50% distance.
+    2. Provide Entry, TP, and SL. Provide 'partial_tp' at 50% distance.
+    3. Output HOLD if Confidence < {MIN_CONFIDENCE}%.
 
     JSON OUTPUT EXACTLY AS BELOW:
     {{
@@ -135,7 +133,7 @@ def chat():
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            temperature=0.1,
+            temperature=0.2,
             top_p=0.1, 
             response_format={ "type": "json_object" },
             messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}],
@@ -144,14 +142,42 @@ def chat():
         parsed = json.loads(response.choices[0].message.content.strip())
         direction = parsed.get("direction", "HOLD")
         confidence = int(parsed.get("confidence") or 0)
-        rr = float(parsed.get("rr") or 0.0)
 
-        # 🛑 RR Yetkisi AI'da, sadece limit kontrolü yapıyoruz (1.4)
+        # 🔥 v21: ABSOLUTE PYTHON RISK MANAGER (Sıfır Yalan Toleransı) 🔥
+        # Yapay zekanın uydurduğu RR'ı tamamen siliyoruz ve Python ile kendimiz hesaplıyoruz!
         if direction in ["LONG", "SHORT"]:
-            if confidence < MIN_CONFIDENCE or rr < BASE_MIN_RR:
+            try:
+                entry = float(parsed.get("entry") or 0)
+                tp = float(parsed.get("tp") or 0)
+                sl = float(parsed.get("sl") or 0)
+                
+                risk = 0
+                reward = 0
+                
+                if direction == "LONG":
+                    risk = entry - sl
+                    reward = tp - entry
+                elif direction == "SHORT":
+                    risk = sl - entry
+                    reward = entry - tp
+                
+                # Gerçek RR Hesabı (Eğer risk 0 veya negatifse RR 0 olur)
+                if risk <= 0 or reward <= 0:
+                    real_rr = 0.0
+                else:
+                    real_rr = round(reward / risk, 2)
+                
+                # Yapay Zekanın yalan söylediği RR değerini Python'un bulduğu gerçek değerle eziyoruz!
+                parsed["rr"] = real_rr
+
+                if confidence < MIN_CONFIDENCE or real_rr < BASE_MIN_RR:
+                    parsed["direction"] = "HOLD"
+                    if "why" not in parsed: parsed["why"] = []
+                    parsed["why"].append(f"🚨 Python Guard Vetoed: AI hallucinated the RR. The REAL RR is {real_rr} (Min required: {BASE_MIN_RR}). Trade rejected to protect capital.")
+                    parsed["market_summary"] = f"Trade automatically rejected by Hardcoded Python Risk Manager. Insufficient actual Risk/Reward ({real_rr})."
+            except Exception as e:
                 parsed["direction"] = "HOLD"
-                if "why" in parsed: 
-                    parsed["why"].append(f"🚨 Sniper Guard: Confidence ({confidence}%) or AI-calculated RR ({rr}) failed Apex threshold (Target RR: {BASE_MIN_RR}).")
+                parsed["market_summary"] = "Trade rejected: Invalid Entry/TP/SL numbers generated by AI."
 
         return jsonify(parsed)
 
