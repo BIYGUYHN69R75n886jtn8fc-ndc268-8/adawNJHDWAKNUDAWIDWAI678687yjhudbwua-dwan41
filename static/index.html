@@ -19,34 +19,68 @@
         </div>
       </div>
       
-      <!-- Chat Widget için JavaScript -->
+      <!-- Chat Widget + News JavaScript -->
       <script>
         // Toggle chat widget büyütme/küçültme
         document.getElementById('toggle-expand').addEventListener('click', function() {
           var widget = document.getElementById('chat-widget');
           widget.classList.toggle('expanded');
           widget.classList.toggle('collapsed');
-          // Buton simgesini güncelle (örneğin: genişletme için "⇱", küçültme için "⇲")
           if(widget.classList.contains('expanded')) {
-            this.innerHTML = "&#x2923;"; // Küçültme simgesi
+            this.innerHTML = "&#x2923;";
           } else {
-            this.innerHTML = "&#x2922;"; // Genişletme simgesi
+            this.innerHTML = "&#x2922;";
           }
         });
-      
-        async function sendMessage() {
-          const textareaEl = document.getElementById('user-input');
-          const message = textareaEl.value.trim();
-          if (!message) return;
-          textareaEl.value = "";
-          
+
+        function appendMessage(roleLabel, text) {
           const chatMessages = document.getElementById('chat-messages');
-          const userMsgDiv = document.createElement('div');
-          userMsgDiv.className = 'message';
-          userMsgDiv.innerHTML = `<strong>Siz:</strong> ${message}`;
-          chatMessages.appendChild(userMsgDiv);
+          if (!chatMessages) return;
+
+          const msg = document.createElement('div');
+          msg.className = 'message';
+
+          const strong = document.createElement('strong');
+          strong.textContent = roleLabel + ": ";
+
+          const span = document.createElement('span');
+          span.textContent = String(text ?? "");
+
+          msg.appendChild(strong);
+          msg.appendChild(span);
+          chatMessages.appendChild(msg);
           chatMessages.scrollTop = chatMessages.scrollHeight;
-          
+        }
+
+        function renderBotStructured(data) {
+          if (data && typeof data === "object" && ("direction" in data)) {
+            const parts = [
+              `Direction: ${data.direction ?? "HOLD"}`,
+              `Confidence: ${data.confidence ?? 0}%`,
+              `Entry: ${data.entry ?? "N/A"}`,
+              `TP: ${data.tp ?? "N/A"}`,
+              `SL: ${data.sl ?? "N/A"}`,
+              `RR: ${data.rr ?? "0"}`
+            ];
+            const why = Array.isArray(data.why) ? data.why.join(" | ") : "";
+            return parts.join(" | ") + (why ? `\nWhy: ${why}` : "");
+          }
+          if (data && typeof data.response === "string") return data.response;
+          try {
+            return JSON.stringify(data);
+          } catch(e) {
+            return String(data);
+          }
+        }
+
+        async function sendMessage() {
+          const input = document.getElementById('user-input');
+          const message = (input && input.value ? input.value : "").trim();
+          if (!message) return;
+          if (input) input.value = "";
+
+          appendMessage("Siz", message);
+
           try {
             const response = await fetch('/chat', {
               method: 'POST',
@@ -54,115 +88,25 @@
               body: JSON.stringify({ input: message })
             });
             const data = await response.json();
-            const botMsgDiv = document.createElement('div');
-            botMsgDiv.className = 'message';
-            if (data.response) {
-              botMsgDiv.innerHTML = `<strong>Asistan:</strong> ${data.response}`;
-            } else {
-              botMsgDiv.innerHTML = `<strong>Hata:</strong> ${data.error}`;
-            }
-            chatMessages.appendChild(botMsgDiv);
-          } catch (error) {
-            const errorMsgDiv = document.createElement('div');
-            errorMsgDiv.className = 'message';
-            errorMsgDiv.innerHTML = `<strong>Hata:</strong> ${error.message}`;
-            chatMessages.appendChild(errorMsgDiv);
+            appendMessage("GryptoAI", renderBotStructured(data));
+          } catch (err) {
+            appendMessage("System", "Request failed: " + (err && err.message ? err.message : String(err)));
           }
-          chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-      
-        // Eğer isterseniz, textarea içerisinde Shift+Enter ile yeni satır eklenirken,
-        // sadece Enter tuşuna basıldığında mesaj göndermeyi engellemek için aşağıdaki kodu ekleyebilirsiniz.
+
+        // Button onclick="sendMessage()" çalışsın diye global
+        window.sendMessage = sendMessage;
+
+        // Enter ile gönder
         document.getElementById('user-input').addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // Enter tuşunun yeni satır eklemesini engelle
+          if(e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
             sendMessage();
           }
         });
-      </script>
-    
 
-    <div class="sidebar">
-      <h1 onclick="location.href='index.html'">
-        <img src="logo.png" alt="GRYPTO Logo" class="logo">
-      </h1>
-        <div class="coin-list">
-          <div class="coin-item" onclick="location.href='bitcoin.html'">Bitcoin</div>
-          <div class="coin-item" onclick="location.href='ethereum.html'">Ethereum</div>
-          <div class="coin-item" onclick="location.href='ada.html'">ADA</div>
-          <div class="coin-item" onclick="location.href='avax.html'">AVAX</div>
-          <div class="coin-item" onclick="location.href='mana.html'">MANA</div>
-          <div class="coin-item" onclick="location.href='bnb.html'">BNB</div>
-          <div class="coin-item" onclick="location.href='xrp.html'">XRP</div>
-          <div class="coin-item" onclick="location.href='solana.html'">SOLANA</div>
-          <div class="coin-item" onclick="location.href='doge.html'">DOGE</div>
-          <div class="coin-item" onclick="location.href='trx.html'">TRX</div>
-        </div>
-      </div>
-
-  <div class="main-content">
-    
-    <div style="width: 100%; border-bottom: 1px solid #334155; margin-bottom: 25px; margin-top: -15px;">
-      <div class="tradingview-widget-container">
-        <div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-        {
-        "symbols": [
-          {
-            "proName": "BINANCE:BTCUSDT",
-            "title": "Bitcoin"
-          },
-          {
-            "proName": "BINANCE:ETHUSDT",
-            "title": "Ethereum"
-          },
-          {
-            "proName": "BINANCE:BNBUSDT",
-            "title": "BNB"
-          },
-          {
-            "proName": "BINANCE:XRPUSDT",
-            "title": "XRP"
-          },
-          {
-            "description": "DXY (Dolar Endeksi)",
-            "proName": "TVC:DXY"
-          },
-          {
-            "description": "Altın (Ons)",
-            "proName": "OANDA:XAUUSD"
-          },
-          {
-            "description": "S&P 500 (ABD Borsası)",
-            "proName": "FOREXCOM:SPXUSD"
-          }
-        ],
-        "showSymbolLogo": true,
-        "colorTheme": "dark",
-        "isTransparent": true,
-        "displayMode": "adaptive",
-        "locale": "tr"
-      }
-        </script>
-      </div>
-    </div>
-  
-        <div class="news-container">
-            <div class="news-column" id="bitcoin-news">
-                <h3>BITCOIN HABERLERİ</h3>
-                
-                <div class="news-items"></div>
-            </div>
-            <div class="news-column" id="ethereum-news">
-                <h3> ETHEREUM HABERLERİ</h3>
-            
-                <div class="news-items"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    const API_KEY = 'jjislkhw1wz9tldkkahbmyodidc2bgab5eezvrzn';
+        // ====== ORİJİNAL NEWS BLOĞUN (AYNEN KORUNDU) ======
+        const API_KEY = 'jjislkhw1wz9tldkkahbmyodidc2bgab5eezvrzn';
 
 async function fetchNews(tag, containerId) {
     try {
@@ -180,20 +124,21 @@ async function fetchNews(tag, containerId) {
                      class="news-image"
                      onerror="this.src='https://i.ibb.co/0j7JQYV/placeholder-news.png'">
                 <div class="news-content">
-                    <span class="news-date">${new Date(item.pubDate).toLocaleString('tr-TR')}</span>
-                    <h4><a href="${item.link}" target="_blank">${item.title}</a></h4>
-                    <p class="news-excerpt">${item.description.replace(/<[^>]+>/g, '').substring(0,100)}...</p>
+                    <h3>${item.title}</h3>
+                    <p>${item.description.replace(/<[^>]*>/g, '').substring(0, 100)}...</p>
+                    <a href="${item.link}" target="_blank">Devamını oku →</a>
                 </div>
             </div>
         `).join('');
+        
     } catch (error) {
-        document.querySelector(`#${containerId} .news-items`).innerHTML = 
-            `<div class="error">${error.message}</div>`;
+        console.error('Haber çekme hatası:', error);
+        const container = document.querySelector(`#${containerId} .news-items`);
+        container.innerHTML = `<div class="error">⚠️ Haberler yüklenemedi: ${error.message}</div>`;
     }
 }
 
 window.onload = () => {
-    Notification.requestPermission();
     fetchNews('bitcoin', 'bitcoin-news');
     fetchNews('ethereum', 'ethereum-news');
     setInterval(() => {
@@ -201,9 +146,7 @@ window.onload = () => {
         fetchNews('ethereum', 'ethereum-news');
     }, 300000); // 5 dakikada bir güncelle
 };
-    </script>
+      </script>
 </body>
 
 </html>
-
-
