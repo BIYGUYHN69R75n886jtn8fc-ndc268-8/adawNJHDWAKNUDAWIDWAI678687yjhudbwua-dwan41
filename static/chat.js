@@ -50,67 +50,67 @@
 
         const parseVal = (str) => parseFloat((str || "").replace(/[^0-9.-]/g, ''));
 
-        // 1. RSI (Extreme Reversion: <= 30 Bull, >= 70 Bear)
+        // 1. RSI
         let rsi = parseVal(values.RSI);
         if (!isNaN(rsi)) { if (rsi <= 30) bull++; else if (rsi >= 70) bear++; else neutral++; }
 
-        // 2. MFI (Money Flow Extreme: <= 20 Bull, >= 80 Bear)
+        // 2. MFI
         let mfi = parseVal(values.MFI);
         if (!isNaN(mfi)) { if (mfi <= 20) bull++; else if (mfi >= 80) bear++; else neutral++; }
 
-        // 3. CCI (Commodity Channel Extreme: <= -100 Bull, >= 100 Bear)
+        // 3. CCI
         let cci = parseVal(values.CCI);
         if (!isNaN(cci)) { if (cci <= -100) bull++; else if (cci >= 100) bear++; else neutral++; }
 
-        // 4. STOCH (Stochastic Extreme: <= 20 Bull, >= 80 Bear)
+        // 4. STOCH
         if (values.STOCH && values.STOCH.includes('/')) {
             let parts = values.STOCH.split('/');
             let k = parseVal(parts[0]), d = parseVal(parts[1]);
             if (k <= 20 && d <= 20) bull++; else if (k >= 80 && d >= 80) bear++; else neutral++;
         }
 
-        // 5. BBANDS (Price vs Bands: Fiyat <= Alt Bull, Fiyat >= Üst Bear)
+        // 5. BBANDS
         if (values.BBANDS && values.BBANDS.includes('/')) {
             let parts = values.BBANDS.split('/');
             let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
             if (p <= lower) bull++; else if (p >= upper) bear++; else neutral++;
         }
 
-        // 6. KELTNER (Price vs Channels: Fiyat <= Alt Bull, Fiyat >= Üst Bear)
+        // 6. KELTNER
         if (values.KELTNER && values.KELTNER.includes('|')) {
             let parts = values.KELTNER.split('|');
             let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
             if (p <= lower) bull++; else if (p >= upper) bear++; else neutral++;
         }
 
-        // 7. MACD (Momentum Trend: > 0 Bull, < 0 Bear)
+        // 7. MACD
         let macd = parseVal(values.MACD);
         if (!isNaN(macd)) { if (macd > 0) bull++; else if (macd < 0) bear++; else neutral++; }
 
-        // 8. EMA (Price vs Avg: p > EMA Bull, p < EMA Bear)
+        // 8. EMA
         let ema = parseVal(values.EMA);
         if (!isNaN(ema)) { if (p > ema) bull++; else if (p < ema) bear++; else neutral++; }
 
-        // 9. VWAP (Institutional Cost Basis: p > VWAP Bull, p < VWAP Bear)
+        // 9. VWAP
         let vwap = parseVal(values.VWAP);
         if (!isNaN(vwap)) { if (p > vwap) bull++; else if (p < vwap) bear++; else neutral++; }
 
-        // 10. SAR (Parabolic Trend: p > SAR Bull, p < SAR Bear)
+        // 10. SAR
         let sar = parseVal(values.SAR);
         if (!isNaN(sar)) { if (p > sar) bull++; else if (p < sar) bear++; else neutral++; }
 
-        // 11. SUPERTREND (Macro Trend: p > ST Bull, p < ST Bear)
+        // 11. SUPERTREND
         let st = parseVal(values.Supertrend);
         if (!isNaN(st)) { if (p > st) bull++; else if (p < st) bear++; else neutral++; }
 
-        // 12. ICHIMOKU (Equilibrium: p > Her İkisi Bull, p < Her İkisi Bear)
+        // 12. ICHIMOKU
         if (values.ICHIMOKU && values.ICHIMOKU.includes('|')) {
             let parts = values.ICHIMOKU.split('|');
             let tenkan = parseVal(parts[0]), kijun = parseVal(parts[1]);
             if (p > tenkan && p > kijun) bull++; else if (p < tenkan && p < kijun) bear++; else neutral++;
         }
 
-        // 🔥 13. ADX (Trend Gücü Onayı) 🔥
+        // 13. ADX
         let adx = parseVal(values.ADX);
         let currentEma = parseVal(values.EMA);
         if (!isNaN(adx) && !isNaN(currentEma)) {
@@ -119,13 +119,13 @@
             } else { neutral++; }
         } else { neutral++; }
 
-        // 🔥 14. OBV (Makro Hacim Baskısı) 🔥
+        // 14. OBV
         let obv = parseVal(values.OBV);
         if (!isNaN(obv)) {
             if (obv > 0) bull++; else if (obv < 0) bear++; else neutral++;
         } else { neutral++; }
 
-        // 15. ATR (Saf Volatilite - Yön Belirtmez)
+        // 15. ATR
         neutral++;
 
         return { bull, bear, neutral };
@@ -199,6 +199,10 @@
     try {
       let promptText = await buildAutoPrompt();
       
+      // 🔥 HAYALET BUG ÇÖZÜMÜ: Analiz anında çekilen YENİ fiyatı ekrana yansıt ki kullanıcı görsün.
+      const textarea = document.getElementById("user-input");
+      if (textarea) textarea.value = promptText;
+      
       const upperLiq = document.getElementById('upper-liq') ? document.getElementById('upper-liq').value.trim() : "";
       const lowerLiq = document.getElementById('lower-liq') ? document.getElementById('lower-liq').value.trim() : "";
       
@@ -227,7 +231,6 @@
       if (j.direction === "LONG") directionColor = "#22c55e"; 
       if (j.direction === "SHORT") directionColor = "#ef4444"; 
   
-      // 🔥 OYLARI DOĞRUDAN DETERMINISTIC ENGINE'DEN OKUYORUZ
       let bullCount = window.deterministicScores ? window.deterministicScores.bull : 0;
       let bearCount = window.deterministicScores ? window.deterministicScores.bear : 0;
       let neutralCount = window.deterministicScores ? window.deterministicScores.neutral : 15;
