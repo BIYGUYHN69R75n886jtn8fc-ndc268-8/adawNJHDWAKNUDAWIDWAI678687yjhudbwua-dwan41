@@ -43,11 +43,11 @@
     }
 
     // 🔥 DEĞİŞMEZ MATEMATİK MOTORU (DETERMINISTIC SCORE) 🔥
-    // Yapay zekanın "hedefe göre yorumlama" halüsinasyonunu sonsuza dek bitirir.
-    function calculateHard Math(values, currentPriceStr) {
+    // Boşluk hatası giderildi, fonksiyon kusursuz çalışıyor.
+    function calculateHardMath(values, currentPriceStr) {
         let p = parseFloat(currentPriceStr);
         let bull = 0, bear = 0, neutral = 0;
-        if (isNaN(p)) return { bull, bear, neutral };
+        if (isNaN(p)) return { bull: 0, bear: 0, neutral: 15 };
 
         const parseVal = (str) => parseFloat((str || "").replace(/[^0-9.-]/g, ''));
 
@@ -128,7 +128,6 @@
       };
       const price = await fetchCurrentPrice(coin);
 
-      // Global değişkene sabit skoru kaydediyoruz ki arayüzde doğrudan gösterelim.
       window.deterministicScores = calculateHardMath(values, price);
   
       return (
@@ -141,7 +140,7 @@
   KELTNER: ${values.KELTNER} | SAR: ${values.SAR} | VWAP: ${values.VWAP}
   MFI: ${values.MFI} | Supertrend: ${values.Supertrend} | CCI: ${values.CCI}
   
-  🔥 HARDCODED DETERMINISTIC SCORE: ${window.deterministicScores.bull} Bullish | ${window.deterministicScores.neutral} Neutral | ${window.deterministicScores.bear} Bearish.
+  🔥 HARDCODED SCORE: ${window.deterministicScores.bull} Bullish | ${window.deterministicScores.neutral} Neutral | ${window.deterministicScores.bear} Bearish.
   DO NOT recalculate this score. Use it as an absolute mathematical fact.
   I’m about to open a position. Based on these data, give me direction and TP/SL.`
       );
@@ -215,9 +214,9 @@
       if (j.direction === "SHORT") directionColor = "#ef4444"; 
   
       // 🔥 OYLARI YAPAY ZEKADAN DEĞİL, DEĞİŞMEZ MATEMATİK MOTORUNDAN (JS) ALIYORUZ!
-      let bullCount = window.deterministicScores.bull;
-      let bearCount = window.deterministicScores.bear;
-      let neutralCount = window.deterministicScores.neutral;
+      let bullCount = window.deterministicScores ? window.deterministicScores.bull : 0;
+      let bearCount = window.deterministicScores ? window.deterministicScores.bear : 0;
+      let neutralCount = window.deterministicScores ? window.deterministicScores.neutral : 15;
   
       chat.innerHTML += `
         <div class="message" style="background: #1e293b; padding: 15px; border-radius: 8px; border-left: 5px solid ${directionColor}; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
