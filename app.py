@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify, send_from_directory, session, redirec
 from openai import OpenAI
 
 # Profesyonel Loglama Başlatıldı
-print("ULTRA PRO QUANT ENGINE v15 (Institutional Sniper + Live News) is starting...")
+print("ULTRA PRO QUANT ENGINE v17 (Apex Institutional Sniper - 4 Pillar Synthesis) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
@@ -130,23 +130,36 @@ def chat():
     # 🌐 SENTINEL SEARCHER: Canlı Veri ve Haber Saatlerini Çek
     live_news = get_live_market_context()
 
-    # 🔥 v15: INSTITUTIONAL SNIPER PROMPT (Sabitlenmiş Format ve Kurallar)
+    # 🔥 v17: INSTITUTIONAL APEX ORACLE PROMPT (4-PILLAR SYNTHESIS)
     system_prompt = f"""
-    ROLE: You are the AI-Quant Oracle at a Tier-1 Crypto Hedge Fund. 
-    LIVE NEWS FEED (WITH TIMES): {live_news}
+    ROLE: You are the Lead AI-Quant Trader at a Tier-1 Crypto Hedge Fund. 
+    LIVE MACRO CONTEXT: {live_news}
     CURRENT TIME: {current_time_utc}
 
-    STRICT ORACLE PROTOCOLS:
-    1. ABSOLUTE RR CALCULATION: You MUST calculate Risk/Reward ratio based on the FINAL Whale Target (tp). Suggesting a 'partial_tp' does NOT reduce the Reward value for your scoring.
-    2. NEWS DECAY LOGIC: Evaluate news based on publication time. If a headline is >4 hours old, reduce its weighting by 50%. Immediate breaking news (<1 hour) overrides all technical signals.
-    3. VOLUME DIVERGENCE (ANTI-TRAP): Strictly cross-reference Price vs Volume (OBV/MFI). If price targets the Liquidity Pool but Volume is stagnant or declining, classify as 'LIQUIDITY TRAP' and output HOLD.
-    4. PARTIAL PROFIT REALIZATION: You MUST suggest a 'partial_tp' at 50% of the distance to the final target to secure the trade.
-    5. BAYESIAN WEIGHTED SYNTHESIS: VOL/FLOW = 40%, NEWS SENTIMENT = 30%, MOMENTUM/STRUCTURE = 30%. Confidence must be >= {MIN_CONFIDENCE}% for execution.
+    STRICT 4-STEP ALGORITHMIC PIPELINE:
+
+    STEP 1: MACRO & REGIME FILTER (The Weather)
+    - Evaluate 'Fear & Greed' and 'Live News'. Highly impactful recent news (<2 hours) overrules technicals. If the macro is violently bearish, do not force a long position.
+
+    STEP 2: MICRO-MECHANICS (The 4 Pillars - ABSOLUTE ISOLATION)
+    You MUST evaluate the 15 indicators across 4 domains. CRITICAL FLAG: Score them PURELY by their raw mathematical definitions. DO NOT let the user's Liquidity Target (tp/sl) alter the indicator's vote. (e.g., if RSI is 29, it is ALWAYS 'bullish' even if the target is impossible).
+    - Pillar A (Volume/Flow): OBV, MFI, VWAP. (Is Smart Money accumulating or distributing?)
+    - Pillar B (Momentum): RSI, MACD, STOCH, CCI. (Is the asset overbought/oversold? Speed of trend?)
+    - Pillar C (Volatility/Borders): ATR, BBANDS, KELTNER. (Are we at statistical extremes or squeezing?)
+    - Pillar D (Trend/Structure): EMA, ADX, ICHIMOKU, SAR, SUPERTREND. (What is the prevailing structural path?)
+
+    STEP 3: LIQUIDITY MAGNETS (The Target)
+    - Look at the user's provided Liquidity Targets (tp/sl). Based on the synthesis of Step 1 and Step 2, decide which liquidity pool the price is magnetically drawn to. 
+
+    STEP 4: EXECUTION & RISK (The Sniper)
+    - Calculate the absolute Risk/Reward (RR) ratio based strictly on Entry, Final TP, and SL. 
+    - Suggest a 'partial_tp' at 50% of the distance to the Final TP. 
+    - You MUST output "direction": "HOLD" if Confidence < {MIN_CONFIDENCE}% OR RR < {BASE_MIN_RR}.
 
     JSON FORMAT EXACTLY AS BELOW:
     {{
      "direction": "LONG|SHORT|HOLD",
-     "market_regime": "Trending|Volatility Squeeze|Ranging|Exhausted",
+     "market_regime": "Trending|Volatility Squeeze|Ranging|Exhausted|Liquidity Hunt",
      "entry": float or null,
      "partial_tp": float or null,
      "tp": float or null,
@@ -157,7 +170,7 @@ def chat():
      "confidence": integer 0-100,
      "risk": "Low|Medium|High",
      "rr": float,
-     "confluence_score": "Brief summary of confluence factors",
+     "confluence_score": "Brief summary of confluence factors based on the 4 Pillars",
      "indicator_votes": {{
         "RSI": "bullish|bearish|neutral",
         "EMA": "bullish|bearish|neutral",
@@ -175,7 +188,7 @@ def chat():
         "SUPERTREND": "bullish|bearish|neutral",
         "CCI": "bullish|bearish|neutral"
      }},
-     "why": ["Specific reasoning 1", "Specific reasoning 2"],
+     "why": ["Macro Sentiment Analysis", "4-Pillar Technical Synthesis"],
      "what_to_watch_for": "Action needed for entry confirmation.",
      "cancel_conditions": ["If candle closes below/above level X"],
      "market_summary": "Sharp institutional assessment."
@@ -199,7 +212,7 @@ def chat():
         try:
             parsed = json.loads(raw)
         except Exception as e:
-            # Orijinal koddaki detaylı Fallback bloğu geri getirildi
+            # Fallback bloğu - Sistem çökmesini önler
             return jsonify({
                 "direction": "HOLD",
                 "confidence": 0,
@@ -225,7 +238,7 @@ def chat():
         confidence = int(parsed.get("confidence") or 0)
         rr = float(parsed.get("rr") or 0.0)
 
-        # 🛑 APEX SNIPER PROTECTION (Gelişmiş v15 Koruma)
+        # 🛑 APEX SNIPER PROTECTION (1.5 RR & %65 Confidence Guard)
         if direction in ["LONG", "SHORT"]:
             if confidence < MIN_CONFIDENCE or rr < BASE_MIN_RR:
                 parsed["direction"] = "HOLD"
