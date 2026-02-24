@@ -6,8 +6,8 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
-# Profesyonel Loglama Başlatıldı
-print("ULTRA PRO QUANT ENGINE v13 (Institutional Apex + Live News) is starting...")
+# v14 "The Oracle" - Institutional News Decay, Divergence & Partial Profit Logic
+print("ULTRA PRO QUANT ENGINE v14 (The Oracle - Institutional Synthesis) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
@@ -19,8 +19,8 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # 🔥 SİSTEM PARAMETRELERİ
-MIN_CONFIDENCE = 65  # Kaptan emri: %65 altı otomatik HOLD.
-BASE_MIN_RR = 1.5    # Dinamik RR için taban sınır.
+MIN_CONFIDENCE = 65  
+BASE_MIN_RR = 1.5    
 
 # 👥 VIP VERİTABANI
 VIP_USERS = {
@@ -28,9 +28,9 @@ VIP_USERS = {
     "alen": "alen.123"
 } 
 
-# 🌐 CANLI VERİ KÖPRÜSÜ (OpenAI'ın hafızasını güncelleyen kısım)
+# 🌐 CANLI VERİ KÖPRÜSÜ (The Oracle News Decay Layer)
 def get_live_market_context():
-    """Python aracılığıyla internete bağlanıp saniyelik haberleri ve sentimenti çeker."""
+    """İnternetten saniyelik haberleri ve yayın saatlerini çeker."""
     context = "Live Context: Unavailable (API Timeout)."
     try:
         # 1. Korku ve Açgözlülük Endeksi (Canlı)
@@ -38,10 +38,11 @@ def get_live_market_context():
         fgi_data = fgi_r.json()['data'][0]
         sentiment = f"Fear & Greed Index: {fgi_data['value']} ({fgi_data['value_classification']}). "
         
-        # 2. Canlı Kripto Haber Başlıkları
+        # 2. Canlı Kripto Haber Başlıkları + Yayın Saatleri
         news_r = requests.get("https://min-api.cryptocompare.com/data/v2/news/?lang=EN", timeout=5)
-        news_data = news_r.json()['Data'][:5] # Son 5 ana haber
-        headlines = " | ".join([n['title'] for n in news_data])
+        news_data = news_r.json()['Data'][:5]
+        # Her haberin yanına yayın saatini ekliyoruz ki AI bayatlığını ölçebilsin
+        headlines = " | ".join([f"{n['title']} (Published at: {datetime.fromtimestamp(n['published_on']).strftime('%H:%M')})" for n in news_data])
         
         context = f"{sentiment} Recent Headlines: {headlines}"
     except Exception as e:
@@ -78,7 +79,7 @@ LOGIN_HTML = """
 <body>
   <div class="login-box">
     <h2 style="color: #05fd05; letter-spacing: 2px; margin-bottom: 5px;">GRYPTO AI</h2>
-    <p style="color: #94a3b8; margin-top: 0; margin-bottom: 25px; font-size: 14px;">Institutional Apex Engine (1H)</p>
+    <p style="color: #94a3b8; margin-top: 0; margin-bottom: 25px; font-size: 14px;">Institutional Apex Oracle (1H)</p>
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
     <form method="POST">
       <input type="text" name="username" placeholder="Username" required>
@@ -126,48 +127,46 @@ def chat():
 
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
     
-    # 🌐 İNTERNETTEN CANLI VERİYİ ÇEK (Asistan Gazeteyi Alıyor)
+    # 🌐 SENTINEL SEARCHER: Canlı Veri ve Haber Saatlerini Çek
     live_news = get_live_market_context()
 
-    # 🔥 v13: LİKİDİTE AVCISI + BAYESIAN SENTEZ + CANLI HABER ENJEKSİYONU
+    # 🔥 v14: INSTITUTIONAL ORACLE PROMPT
     system_prompt = f"""
-    ROLE: You are the AI-Quant Lead at a Tier-1 Crypto Hedge Fund. 
-    LIVE MARKET CONTEXT (JUST FETCHED): {live_news}
+    ROLE: You are the AI-Quant Oracle at a Tier-1 Crypto Hedge Fund. 
+    LIVE NEWS FEED (WITH TIMES): {live_news}
     CURRENT TIME: {current_time_utc}
 
-    STRICT OPERATIONAL PROTOCOLS:
-    1. NEWS-DRIVEN BIAS: 
-       - Evaluate if LIVE MARKET CONTEXT (Trump/FED/Regulatory news) contradicts the technical data.
-       - If indicators are Bullish but news is Bearish, prioritize Capital Preservation (HOLD).
+    STRICT ORACLE PROTOCOLS:
+    1. NEWS DECAY LOGIC: 
+       - Evaluate news based on publication time. If a headline is >4 hours old, reduce its weighting by 50%.
+       - Immediate breaking news (<1 hour) overrides all technical signals.
 
-    2. MARKET REGIME (THE CONTEXT): 
-       - Diagnose if the market is in 'Stop Run', 'Trend Continuation', or 'Volatility Exhaustion'.
-       - Use ADX and ATR for dynamic SL/TP ranges.
+    2. VOLUME DIVERGENCE (ANTI-TRAP): 
+       - Strictly cross-reference Price vs Volume (OBV/MFI). 
+       - If price targets the Liquidity Pool but Volume is stagnant or declining, classify as 'LIQUIDITY TRAP' and output HOLD.
 
-    3. LIQUIDITY GRAVITY (THE COMPASS):
-       - User Liquidity Targets are your Primary Mission.
-       - CALCULATE: If price hits target but OBV/MFI is decreasing, mark as 'Bull Trap'.
+    3. PARTIAL PROFIT REALIZATION: 
+       - You MUST suggest a 'Partial TP' at 50% of the distance to the final target.
+       - Instruction: "Move SL to Entry once Partial TP is hit."
 
-    4. BAYESIAN WEIGHTED SYNTHESIS:
-       - No simple counting. Use weighted conviction:
-         * LIVE NEWS/SENTIMENT & VOLUME = 40%
-         * MOMENTUM (RSI, MACD, STOCH) = 30%
-         * STRUCTURE (EMA, Supertrend, Ichimoku) = 30%
-       - If total probability < {MIN_CONFIDENCE}%, output HOLD.
+    4. MARKET REGIME DIAGNOSIS: 
+       - Use ADX/ATR to detect 'Stop Runs' or 'Mean Reversion'. 
+       - Place SL at least 1.5x ATR away to survive 'News Wicks'.
 
-    5. RISK RIGOR:
-       - SL PLACEMENT: Place SL at least 1.5x ATR away from entry to survive 'News Wicks'.
-       - ENTRY: Prefer Limit Entries during high volatility news spikes.
+    5. BAYESIAN WEIGHTED SYNTHESIS:
+       - VOL/FLOW = 40%, NEWS SENTIMENT = 30%, MOMENTUM/STRUCTURE = 30%.
+       - Confidence must be >= {MIN_CONFIDENCE}% for execution.
 
     JSON OUTPUT FORMAT:
     {{
      "direction": "LONG|SHORT|HOLD",
      "market_regime": "Diagnosis",
-     "entry": float, "tp": float, "sl": float,
+     "entry": float, "partial_tp": float, "tp": float, "sl": float,
      "confidence": integer, "rr": float,
-     "why": ["News/Sentiment impact", "Professional analysis"],
-     "what_to_watch_for": "Trigger for entry",
-     "market_summary": "Sharp tactical brief."
+     "why": ["Oracle News Decay Analysis", "Structural Divergence Analysis"],
+     "what_to_watch_for": "Confirmation trigger",
+     "cancel_conditions": ["Specific level invalidation"],
+     "market_summary": "1-sentence sharp tactical assessment."
     }}
     """
 
@@ -190,17 +189,17 @@ def chat():
         confidence = int(parsed.get("confidence") or 0)
         rr = float(parsed.get("rr") or 0.0)
 
-        # 🛑 FINAL PROTECTION (Gelişmiş v13 Koruma)
+        # 🛑 APEX ORACLE PROTECTION
         if direction in ["LONG", "SHORT"]:
             if confidence < MIN_CONFIDENCE or rr < BASE_MIN_RR:
                 parsed["direction"] = "HOLD"
                 if "why" in parsed and isinstance(parsed["why"], list):
-                    parsed["why"].append(f"SENTINEL: Confidence {confidence}% or RR {rr} fails Apex threshold.")
+                    parsed["why"].append(f"ORACLE GUARD: Confidence {confidence}% or RR {rr} failed Apex threshold.")
 
         return jsonify(parsed)
 
     except Exception as e:
-        logging.exception("QUANT ENGINE CRITICAL ERROR:")
+        logging.exception("ORACLE ENGINE CRITICAL ERROR:")
         return jsonify({"direction": "HOLD", "why": [str(e)]}), 500
 
 @app.route('/<path:path>')
