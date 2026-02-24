@@ -1,152 +1,210 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <title>GRYPTO</title>
-    <link rel="stylesheet" href="css.css">
+  <meta charset="UTF-8">
+  <title>GRYPTO</title>
+  <link rel="stylesheet" href="css.css">
 </head>
+
 <body>
 
-    <div id="chat-widget" class="collapsed">
-        <div id="chat-header">
-          🧠 Grypto AI 
-          <button id="toggle-expand" title="Genişlet" style="float: right;">&#x2922;</button>
-        </div>
-        <div id="chat-messages"></div>
-        <div id="chat-input">
-          <textarea id="user-input" placeholder="İndikatör verilerini gir veya soru sor..." rows="2"></textarea>
-          <button onclick="sendMessage()">Analiz</button>
-        </div>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h1 onclick="location.href='index.html'">
+      <img src="logo.png" alt="GRYPTO Logo" class="logo">
+    </h1>
+
+    <div class="coin-list">
+      <div class="coin-item" onclick="location.href='bitcoin.html'">Bitcoin</div>
+      <div class="coin-item" onclick="location.href='ethereum.html'">Ethereum</div>
+      <div class="coin-item" onclick="location.href='solana.html'">SOL</div>
+      <div class="coin-item" onclick="location.href='xrp.html'">XRP</div>
+      <div class="coin-item" onclick="location.href='bnb.html'">BNB</div>
+      <div class="coin-item" onclick="location.href='doge.html'">DOGE</div>
+      <div class="coin-item" onclick="location.href='trx.html'">TRX</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <div style="width: 100%; border-bottom: 1px solid #334155; margin-bottom: 25px; margin-top: -15px;">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+          {
+            "symbols": [
+              {"proName": "BINANCE:BTCUSDT", "title": "BTC"},
+              {"proName": "BINANCE:ETHUSDT", "title": "ETH"},
+              {"proName": "BINANCE:BNBUSDT", "title": "BNB"},
+              {"proName": "BINANCE:XRPUSDT", "title": "XRP"},
+              {"proName": "BINANCE:SOLUSDT", "title": "SOL"},
+              {"proName": "BINANCE:DOGEUSDT", "title": "DOGE"}
+            ],
+            "showSymbolLogo": true,
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "displayMode": "adaptive",
+            "locale": "tr"
+          }
+        </script>
       </div>
-      
-      <!-- Chat Widget + News JavaScript -->
-      <script>
-        // Toggle chat widget büyütme/küçültme
-        document.getElementById('toggle-expand').addEventListener('click', function() {
-          var widget = document.getElementById('chat-widget');
-          widget.classList.toggle('expanded');
-          widget.classList.toggle('collapsed');
-          if(widget.classList.contains('expanded')) {
-            this.innerHTML = "&#x2923;";
-          } else {
-            this.innerHTML = "&#x2922;";
-          }
-        });
+    </div>
 
-        function appendMessage(roleLabel, text) {
-          const chatMessages = document.getElementById('chat-messages');
-          if (!chatMessages) return;
+    <!-- (Burada senin dashboard/icerik blokların varsa devam eder.
+         Senin önceki dosyanda bu kısımda news container vardı, onu aşağıya koydum.) -->
 
-          const msg = document.createElement('div');
-          msg.className = 'message';
+    <!-- NEWS -->
+    <div class="news-container">
+      <div class="news-column" id="bitcoin-news">
+        <h3>BITCOIN HABERLERİ</h3>
+        <div class="news-items"></div>
+      </div>
 
-          const strong = document.createElement('strong');
-          strong.textContent = roleLabel + ": ";
+      <div class="news-column" id="ethereum-news">
+        <h3>ETHEREUM HABERLERİ</h3>
+        <div class="news-items"></div>
+      </div>
+    </div>
 
-          const span = document.createElement('span');
-          span.textContent = String(text ?? "");
+  </div>
 
-          msg.appendChild(strong);
-          msg.appendChild(span);
-          chatMessages.appendChild(msg);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+  <!-- CHAT WIDGET (sayfanın en sonunda, layout bozmaması için) -->
+  <div id="chat-widget" class="collapsed">
+    <div id="chat-header">
+      🧠 Grypto AI
+      <button id="toggle-expand" title="Genişlet" style="float:right;">&#x2922;</button>
+    </div>
+
+    <div id="chat-messages"></div>
+
+    <div id="chat-input">
+      <textarea id="user-input" placeholder="İndikatör verilerini gir veya soru sor..." rows="2"></textarea>
+      <button id="send-btn">Analiz</button>
+    </div>
+  </div>
+
+  <script>
+    // ---------- CHAT UI ----------
+    (function() {
+      const toggleBtn = document.getElementById('toggle-expand');
+      const widget = document.getElementById('chat-widget');
+      const sendBtn = document.getElementById('send-btn');
+      const textareaEl = document.getElementById('user-input');
+      const chatMessages = document.getElementById('chat-messages');
+
+      function appendMessage(roleLabel, text) {
+        const msg = document.createElement('div');
+        msg.className = 'message';
+
+        const strong = document.createElement('strong');
+        strong.textContent = roleLabel + ": ";
+
+        const span = document.createElement('span');
+        span.textContent = String(text ?? "");
+
+        msg.appendChild(strong);
+        msg.appendChild(span);
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function renderBotStructured(data) {
+        if (data && typeof data === "object" && ("direction" in data)) {
+          const parts = [
+            `Direction: ${data.direction ?? "HOLD"}`,
+            `Confidence: ${data.confidence ?? 0}%`,
+            `Entry: ${data.entry ?? "N/A"}`,
+            `TP: ${data.tp ?? "N/A"}`,
+            `SL: ${data.sl ?? "N/A"}`,
+            `RR: ${data.rr ?? "0"}`
+          ];
+          const why = Array.isArray(data.why) ? data.why.join(" | ") : "";
+          return parts.join(" | ") + (why ? `\nWhy: ${why}` : "");
         }
+        if (data && typeof data.response === "string") return data.response;
+        try { return JSON.stringify(data); } catch(e) { return String(data); }
+      }
 
-        function renderBotStructured(data) {
-          if (data && typeof data === "object" && ("direction" in data)) {
-            const parts = [
-              `Direction: ${data.direction ?? "HOLD"}`,
-              `Confidence: ${data.confidence ?? 0}%`,
-              `Entry: ${data.entry ?? "N/A"}`,
-              `TP: ${data.tp ?? "N/A"}`,
-              `SL: ${data.sl ?? "N/A"}`,
-              `RR: ${data.rr ?? "0"}`
-            ];
-            const why = Array.isArray(data.why) ? data.why.join(" | ") : "";
-            return parts.join(" | ") + (why ? `\nWhy: ${why}` : "");
-          }
-          if (data && typeof data.response === "string") return data.response;
-          try {
-            return JSON.stringify(data);
-          } catch(e) {
-            return String(data);
-          }
+      async function sendMessage() {
+        const message = (textareaEl.value || "").trim();
+        if (!message) return;
+        textareaEl.value = "";
+
+        appendMessage("Siz", message);
+
+        try {
+          const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ input: message })
+          });
+
+          const data = await response.json();
+          appendMessage("GryptoAI", renderBotStructured(data));
+        } catch (err) {
+          appendMessage("System", "Request failed: " + (err && err.message ? err.message : String(err)));
         }
+      }
 
-        async function sendMessage() {
-          const input = document.getElementById('user-input');
-          const message = (input && input.value ? input.value : "").trim();
-          if (!message) return;
-          if (input) input.value = "";
+      toggleBtn.addEventListener('click', function() {
+        widget.classList.toggle('expanded');
+        widget.classList.toggle('collapsed');
+        this.innerHTML = widget.classList.contains('expanded') ? "&#x2923;" : "&#x2922;";
+      });
 
-          appendMessage("Siz", message);
+      sendBtn.addEventListener('click', sendMessage);
 
-          try {
-            const response = await fetch('/chat', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ input: message })
-            });
-            const data = await response.json();
-            appendMessage("GryptoAI", renderBotStructured(data));
-          } catch (err) {
-            appendMessage("System", "Request failed: " + (err && err.message ? err.message : String(err)));
-          }
+      textareaEl.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
         }
+      });
+    })();
 
-        // Button onclick="sendMessage()" çalışsın diye global
-        window.sendMessage = sendMessage;
+    // ---------- NEWS ----------
+    const API_KEY = 'jjislkhw1wz9tldkkahbmyodidc2bgab5eezvrzn';
 
-        // Enter ile gönder
-        document.getElementById('user-input').addEventListener('keydown', function(e) {
-          if(e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-          }
-        });
-
-        // ====== ORİJİNAL NEWS BLOĞUN (AYNEN KORUNDU) ======
-        const API_KEY = 'jjislkhw1wz9tldkkahbmyodidc2bgab5eezvrzn';
-
-async function fetchNews(tag, containerId) {
-    try {
+    async function fetchNews(tag, containerId) {
+      try {
         const apiUrl = `https://api.rss2json.com/v1/api.json?api_key=${API_KEY}&rss_url=https://cointelegraph.com/rss/tag/${tag}`;
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`HTTP hatası: ${response.status}`);
-        
+
         const data = await response.json();
         if (data.status !== 'ok') throw new Error(data.message);
-        
+
         const container = document.querySelector(`#${containerId} .news-items`);
         container.innerHTML = data.items.slice(0,5).map(item => `
-            <div class="news-item">
-                <img src="${item.enclosure?.link || 'https://i.ibb.co/0j7JQYV/placeholder-news.png'}" 
-                     class="news-image"
-                     onerror="this.src='https://i.ibb.co/0j7JQYV/placeholder-news.png'">
-                <div class="news-content">
-                    <h3>${item.title}</h3>
-                    <p>${item.description.replace(/<[^>]*>/g, '').substring(0, 100)}...</p>
-                    <a href="${item.link}" target="_blank">Devamını oku →</a>
-                </div>
+          <div class="news-item">
+            <img src="${item.enclosure?.link || 'https://i.ibb.co/0j7JQYV/placeholder-news.png'}"
+                 class="news-image"
+                 onerror="this.src='https://i.ibb.co/0j7JQYV/placeholder-news.png'">
+            <div class="news-content">
+              <h3>${item.title}</h3>
+              <p>${item.description.replace(/<[^>]*>/g, '').substring(0, 100)}...</p>
+              <a href="${item.link}" target="_blank">Devamını oku →</a>
             </div>
+          </div>
         `).join('');
-        
-    } catch (error) {
+
+      } catch (error) {
         console.error('Haber çekme hatası:', error);
         const container = document.querySelector(`#${containerId} .news-items`);
         container.innerHTML = `<div class="error">⚠️ Haberler yüklenemedi: ${error.message}</div>`;
+      }
     }
-}
 
-window.onload = () => {
-    fetchNews('bitcoin', 'bitcoin-news');
-    fetchNews('ethereum', 'ethereum-news');
-    setInterval(() => {
+    window.addEventListener("load", () => {
+      fetchNews('bitcoin', 'bitcoin-news');
+      fetchNews('ethereum', 'ethereum-news');
+      setInterval(() => {
         fetchNews('bitcoin', 'bitcoin-news');
         fetchNews('ethereum', 'ethereum-news');
-    }, 300000); // 5 dakikada bir güncelle
-};
-      </script>
-</body>
+      }, 300000);
+    });
+  </script>
 
+</body>
 </html>
