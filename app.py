@@ -1,12 +1,13 @@
 import os
 import json
 import logging
+import requests
 from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
 # Profesyonel Loglama Başlatıldı
-print("ULTRA PRO QUANT ENGINE v12 (Institutional Apex - Full Integration) is starting...")
+print("ULTRA PRO QUANT ENGINE v13 (Institutional Apex + Live News) is starting...")
 
 app = Flask(__name__, static_folder='static')
 # 🔐 GÜVENLİK ANAHTARI
@@ -17,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 🔥 SİSTEM PARAMETRELERİ (v12 GÜNCEL)
+# 🔥 SİSTEM PARAMETRELERİ
 MIN_CONFIDENCE = 65  # Kaptan emri: %65 altı otomatik HOLD.
 BASE_MIN_RR = 1.5    # Dinamik RR için taban sınır.
 
@@ -26,6 +27,26 @@ VIP_USERS = {
     "alpha576": "Ma-3007.1",        
     "alen": "alen.123"
 } 
+
+# 🌐 CANLI VERİ KÖPRÜSÜ (OpenAI'ın hafızasını güncelleyen kısım)
+def get_live_market_context():
+    """Python aracılığıyla internete bağlanıp saniyelik haberleri ve sentimenti çeker."""
+    context = "Live Context: Unavailable (API Timeout)."
+    try:
+        # 1. Korku ve Açgözlülük Endeksi (Canlı)
+        fgi_r = requests.get("https://api.alternative.me/fng/", timeout=5)
+        fgi_data = fgi_r.json()['data'][0]
+        sentiment = f"Fear & Greed Index: {fgi_data['value']} ({fgi_data['value_classification']}). "
+        
+        # 2. Canlı Kripto Haber Başlıkları
+        news_r = requests.get("https://min-api.cryptocompare.com/data/v2/news/?lang=EN", timeout=5)
+        news_data = news_r.json()['Data'][:5] # Son 5 ana haber
+        headlines = " | ".join([n['title'] for n in news_data])
+        
+        context = f"{sentiment} Recent Headlines: {headlines}"
+    except Exception as e:
+        logging.error(f"Live data fetch error: {e}")
+    return context
 
 @app.before_request
 def check_auth():
@@ -104,54 +125,49 @@ def chat():
         return jsonify({"error": "Input message is required."}), 400
 
     current_time_utc = datetime.now(timezone.utc).strftime("%H:%M UTC")
+    
+    # 🌐 İNTERNETTEN CANLI VERİYİ ÇEK (Asistan Gazeteyi Alıyor)
+    live_news = get_live_market_context()
 
-    # 🔥 v12: LİKİDİTE AVCISI + BAYESIAN SENTEZ + VOLATİLİTE ADAPTASYONU
+    # 🔥 v13: LİKİDİTE AVCISI + BAYESIAN SENTEZ + CANLI HABER ENJEKSİYONU
     system_prompt = f"""
     ROLE: You are the AI-Quant Lead at a Tier-1 Crypto Hedge Fund. 
-    STRATEGY: 1H Liquidity Hunting with Multi-Timeframe Confluence.
+    LIVE MARKET CONTEXT (JUST FETCHED): {live_news}
     CURRENT TIME: {current_time_utc}
 
     STRICT OPERATIONAL PROTOCOLS:
-    1. MARKET REGIME (THE CONTEXT): 
+    1. NEWS-DRIVEN BIAS: 
+       - Evaluate if LIVE MARKET CONTEXT (Trump/FED/Regulatory news) contradicts the technical data.
+       - If indicators are Bullish but news is Bearish, prioritize Capital Preservation (HOLD).
+
+    2. MARKET REGIME (THE CONTEXT): 
        - Diagnose if the market is in 'Stop Run', 'Trend Continuation', or 'Volatility Exhaustion'.
-       - Use ADX and ATR to set the expectation: High Volatility (Wide SL/TP) vs Low Volatility (Tight SL/TP).
+       - Use ADX and ATR for dynamic SL/TP ranges.
 
-    2. LIQUIDITY GRAVITY (THE COMPASS):
-       - User Liquidity Targets (numeric) are your Primary Mission.
-       - CALCULATE: If price is moving to the target but OBV/MFI is decreasing, mark as 'Bull Trap'.
-       - NEVER trade into "YOK" or "0" zones. They are liquidity vacuums.
+    3. LIQUIDITY GRAVITY (THE COMPASS):
+       - User Liquidity Targets are your Primary Mission.
+       - CALCULATE: If price hits target but OBV/MFI is decreasing, mark as 'Bull Trap'.
 
-    3. BAYESIAN WEIGHTED SYNTHESIS:
+    4. BAYESIAN WEIGHTED SYNTHESIS:
        - No simple counting. Use weighted conviction:
-         * SMART MONEY FLOW (OBV, MFI, VWAP, Volume) = 40%
+         * LIVE NEWS/SENTIMENT & VOLUME = 40%
          * MOMENTUM (RSI, MACD, STOCH) = 30%
-         * STRUCTURAL PERMISSION (EMA, Supertrend, Ichimoku) = 30%
+         * STRUCTURE (EMA, Supertrend, Ichimoku) = 30%
        - If total probability < {MIN_CONFIDENCE}%, output HOLD.
 
-    4. RISK & EXECUTION RIGOR:
-       - DINAMIC RR: Target RR 2.5+ for Trending markets; 1.5 for Ranging markets.
-       - SL PLACEMENT: Use ATR. Place SL at least 1.2x ATR away from the entry to avoid 'Wick Hunting'.
-       - ENTRY: Prefer Limit Entries at structural levels (VWAP/EMA) if RSI is overextended.
-
-    5. MULTI-TIMEFRAME OVERRIDE:
-       - If 1H signal is LONG but you detect 4H structural breakdown, reduce confidence by 20%.
+    5. RISK RIGOR:
+       - SL PLACEMENT: Place SL at least 1.5x ATR away from entry to survive 'News Wicks'.
+       - ENTRY: Prefer Limit Entries during high volatility news spikes.
 
     JSON OUTPUT FORMAT:
     {{
      "direction": "LONG|SHORT|HOLD",
      "market_regime": "Diagnosis",
      "entry": float, "tp": float, "sl": float,
-     "support_level": float, "resistance_level": float,
-     "liquidity_target": float,
-     "confidence": integer 0-100,
-     "risk": "Low|Medium|High",
-     "rr": float,
-     "confluence_score": "Bayesian Summary",
-     "indicator_votes": {{ "RSI": "status", "EMA": "status", ... }},
-     "why": ["Professional analysis 1", "Analysis 2"],
+     "confidence": integer, "rr": float,
+     "why": ["News/Sentiment impact", "Professional analysis"],
      "what_to_watch_for": "Trigger for entry",
-     "cancel_conditions": ["Invalidation level"],
-     "market_summary": "1-sentence sharp tactical brief."
+     "market_summary": "Sharp tactical brief."
     }}
     """
 
@@ -159,7 +175,7 @@ def chat():
         response = client.chat.completions.create(
             model="gpt-4o",
             temperature=0.2,
-            top_p=0.1, # 🔥 v12: Mantıksal tutarlılığı maksimize eder
+            top_p=0.1, 
             response_format={ "type": "json_object" },
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -174,35 +190,23 @@ def chat():
         confidence = int(parsed.get("confidence") or 0)
         rr = float(parsed.get("rr") or 0.0)
 
-        # 🛑 APEX RISK FİLTRESİ (Gelişmiş v12 Koruma)
+        # 🛑 FINAL PROTECTION (Gelişmiş v13 Koruma)
         if direction in ["LONG", "SHORT"]:
-            # Güven puanı barajı kontrolü
-            if confidence < MIN_CONFIDENCE:
+            if confidence < MIN_CONFIDENCE or rr < BASE_MIN_RR:
                 parsed["direction"] = "HOLD"
                 if "why" in parsed and isinstance(parsed["why"], list):
-                    parsed["why"].append(f"🚨 APEX GUARD: Confidence ({confidence}%) below threshold ({MIN_CONFIDENCE}%).")
-            
-            # Dinamik RR kontrolü
-            if rr < BASE_MIN_RR:
-                parsed["direction"] = "HOLD"
-                if "why" in parsed and isinstance(parsed["why"], list):
-                    parsed["why"].append(f"🚨 APEX GUARD: RR ({rr}) is mathematically inefficient for 1H structure.")
+                    parsed["why"].append(f"SENTINEL: Confidence {confidence}% or RR {rr} fails Apex threshold.")
 
         return jsonify(parsed)
 
     except Exception as e:
         logging.exception("QUANT ENGINE CRITICAL ERROR:")
-        return jsonify({
-            "direction": "HOLD",
-            "why": ["Engine Error: " + str(e)],
-            "market_summary": "System failure. Do not trade."
-        }), 500
+        return jsonify({"direction": "HOLD", "why": [str(e)]}), 500
 
 @app.route('/<path:path>')
 def static_proxy(path):
     return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
-    # Render ve yerel ortam uyumluluğu için port ayarı
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
