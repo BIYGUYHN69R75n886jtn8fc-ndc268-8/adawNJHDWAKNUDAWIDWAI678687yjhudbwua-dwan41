@@ -6,30 +6,30 @@ from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for, render_template_string
 from openai import OpenAI
 
-print("ULTRA PRO QUANT ENGINE v19 (Execution-First, Deterministic Guards) is starting...")
+print("ULTRA PRO QUANT ENGINE v19 (Execution-First) starting...")
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder="static")
 
-# Single-user offline is fine, but keep configurable.
+# Kapalı ortam tek kullanıcı olsa bile bunu env'den vermen iyi olur.
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "grypto_super_gizli_anahtar_degistir_bunu_123")
 
 logging.basicConfig(level=logging.INFO)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    logging.warning("OPENAI_API_KEY is missing. /chat will fail until you set it.")
+    logging.warning("OPENAI_API_KEY missing. /chat will fail until you set it.")
 
 MODEL_NAME = os.environ.get("OPENAI_MODEL", "gpt-4o")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 🔥 SYSTEM PARAMETERS
+# ENGINE PARAMETERS
 MIN_CONFIDENCE = 65
 BASE_MIN_RR = 1.5
 
-# 👥 VIP USERS
+# VIP USERS (kapalı ağ/tek kullanıcı için şimdilik böyle kalsın)
 VIP_USERS = {"alpha576": "Ma-3007.1", "alen": "alen.123"}
 
-# --- Live context cache (prevents jitter + reduces latency) ---
+# --- Live context cache (jitter/latency azaltır) ---
 _LIVE_CTX_CACHE = {"ts": 0.0, "value": "Live Context: Unavailable."}
 _LIVE_CTX_TTL_SECONDS = 90
 
@@ -39,7 +39,7 @@ def _now_ts() -> float:
 
 
 def get_live_market_context() -> str:
-    """Fetches macro/news context with a short cache (single-user friendly)."""
+    """Fetches macro/news context with a short cache."""
     now_ts = _now_ts()
     if (now_ts - _LIVE_CTX_CACHE["ts"]) < _LIVE_CTX_TTL_SECONDS:
         return _LIVE_CTX_CACHE["value"]
@@ -74,7 +74,7 @@ def get_live_market_context() -> str:
 
 @app.before_request
 def check_auth():
-    # allow login + static file serving; gate HTML pages
+    # login + static serbest; HTML sayfaları VIP korumalı
     if request.endpoint in ["login", "static_proxy"]:
         if request.path.endswith(".html") and not session.get("logged_in"):
             return redirect(url_for("login"))
@@ -156,12 +156,11 @@ def chat():
     data = request.get_json(force=True) or {}
     user_input = (data.get("input") or "").strip()
 
-    # Optional structured additions: coin + upper/lower liquidity inputs
+    # Optional structured additions from client
     coin = (data.get("coin") or "").strip()
     upper_liq = (data.get("upper_liq") or "").strip()
     lower_liq = (data.get("lower_liq") or "").strip()
 
-    # Append as a clean meta block
     if any([coin, upper_liq, lower_liq]):
         user_input += "\n\n[CLIENT_META]\n"
         if coin:
@@ -238,7 +237,7 @@ OUTPUT: Return JSON ONLY with the following schema (no extra keys):
         if not isinstance(parsed.get("cancel_conditions"), list):
             parsed["cancel_conditions"] = [str(parsed.get("cancel_conditions"))] if parsed.get("cancel_conditions") else []
 
-        # Sniper Guard (same logic, normalized)
+        # Sniper Guard
         if parsed["direction"] in ("LONG", "SHORT"):
             if parsed["confidence"] < MIN_CONFIDENCE or parsed["rr"] < BASE_MIN_RR:
                 parsed["direction"] = "HOLD"
