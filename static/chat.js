@@ -311,5 +311,42 @@
       chat.innerHTML += `<div class="message"><strong>System Error:</strong> <span style="color:#ff4444;">${e.message}</span></div>`;
     }
   };
+    
   })();
+
+// 🔥 DİNAMİK SEANS MOTORU 🔥
+function updateSessionClock() {
+    const timerEl = document.getElementById('session-timer');
+    const timeEl = document.getElementById('session-time');
+    const textEl = document.getElementById('session-text');
+    
+    if(!timerEl || !timeEl || !textEl) return;
+
+    // Bilgisayarın yerel saatini al
+    const now = new Date();
+    const hours = now.getHours();
+    const mins = now.getMinutes().toString().padStart(2, '0');
+    
+    // Ekrana saati yaz (Örn: 11:05)
+    timeEl.textContent = `${hours.toString().padStart(2, '0')}:${mins}`;
+
+    // Kaptanın Kuralları: Saat 11 (Londra) veya 18 (New York) ise YEŞİL yap
+    if (hours === 11) {
+        timerEl.className = 'session-active';
+        textEl.textContent = 'London Session Open';
+    } else if (hours === 18) {
+        timerEl.className = 'session-active';
+        textEl.textContent = 'New York Session Open';
+    } else {
+        // Diğer tüm saatlerde KIRMIZI yap
+        timerEl.className = 'session-inactive';
+        textEl.textContent = 'Do Not Enter';
+    }
+}
+
+// Her 1 saniyede bir saati güncelle
+setInterval(updateSessionClock, 1000);
+// Sayfa yüklenir yüklenmez ilk çağrıyı yap
+document.addEventListener("DOMContentLoaded", updateSessionClock);
+
 
