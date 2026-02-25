@@ -148,11 +148,21 @@
   `I am now providing you with ${coinName} 1H data:
   Current price: ${price}
   
-  RSI: ${values.RSI} | EMA: ${values.EMA} | MACD: ${values.MACD}
-  BBANDS: ${values.BBANDS} | ATR: ${values.ATR} | STOCH: ${values.STOCH}
-  ADX: ${values.ADX} | ICHIMOKU: ${values.ICHIMOKU} | OBV: ${values.OBV}
-  KELTNER: ${values.KELTNER} | SAR: ${values.SAR} | VWAP: ${values.VWAP}
-  MFI: ${values.MFI} | Supertrend: ${values.Supertrend} | CCI: ${values.CCI}
+  RSI: ${values.RSI}
+  EMA: ${values.EMA}
+  MACD: ${values.MACD}
+  BBANDS: ${values.BBANDS}
+  ATR: ${values.ATR}
+  STOCH: ${values.STOCH}
+  ADX: ${values.ADX}
+  ICHIMOKU: ${values.ICHIMOKU}
+  OBV: ${values.OBV}
+  KELTNER: ${values.KELTNER}
+  SAR: ${values.SAR}
+  VWAP: ${values.VWAP}
+  MFI: ${values.MFI}
+  Supertrend: ${values.Supertrend}
+  CCI: ${values.CCI}
   
   🔥 HARDCODED SCORE: ${window.deterministicScores.bull} Bullish | ${window.deterministicScores.neutral} Neutral | ${window.deterministicScores.bear} Bearish.
   DO NOT recalculate this score. Use it as an absolute mathematical fact.
@@ -302,3 +312,4 @@
     }
   };
   })();
+
