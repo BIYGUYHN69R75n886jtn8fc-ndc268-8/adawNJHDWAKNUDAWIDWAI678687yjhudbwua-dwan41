@@ -277,4 +277,49 @@ display: block;      /* Inline-block yerine block */
 margin: auto 10; /* Üstte -20px, sağ ve solda otomatik */
 filter: brightness(0.9);
 
+
 }
+
+
+
+/* 🔥 SEANS SAATİ TASARIMI 🔥 */
+#session-timer {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  background-color: #ef4444; /* Varsayılan Kırmızı */
+  border-radius: 16px; 
+  padding: 0 10px;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  overflow: hidden;
+  cursor: default;
+  transition: width 0.4s ease, background-color 0.4s ease;
+  white-space: nowrap;
+  width: 58px; /* Sadece saati gösterecek, alttaki logoyu ezecek genişlik */
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+}
+
+/* Üzerine gelince uzama efekti */
+#session-timer:hover {
+  width: 220px; /* Yazının sığacağı kadar genişler */
+}
+
+/* Saatin yanındaki gizli metin */
+#session-text {
+  margin-left: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Üzerine gelince metni görünür yap */
+#session-timer:hover #session-text {
+  opacity: 1;
+}
+
+/* Aktif (Yeşil) ve İnaktif (Kırmızı) Seans Renkleri */
+.session-inactive { background-color: #ef4444 !important; }
+.session-active { background-color: #22c55e !important; }
