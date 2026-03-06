@@ -221,7 +221,11 @@
           promptText += `User 1H Liquidation Map data:\n`;
           if (upperLiq !== "") promptText += `- Upper Pool: ${upperLiq}\n`;
           if (lowerLiq !== "") promptText += `- Lower Pool: ${lowerLiq}\n`;
-          promptText += `\nINSTRUCTION: If LONG, set 'tp' slightly below ${upperLiq || "the upper pool"}. If SHORT, set 'tp' slightly above ${lowerLiq || "the lower pool"}. Adjust 'sl' for RR >= 1.5.\n`;
+          
+          promptText += `\nINSTRUCTION: WARNING - Prevent Stop Hunts & Catch Liquidation Cascades!\n`;
+          promptText += `1. SL (Stop Loss): Use the ATR indicator to set a safe buffer beyond sudden 10-minute volatility wicks. Do NOT squeeze 'sl' tightly just to force a high RR.\n`;
+          promptText += `2. TP Strategy: Set 'partial_tp' EXACTLY at the ${upperLiq || "upper pool"} (LONG) or ${lowerLiq || "lower pool"} (SHORT) to secure guaranteed profit. Then, set the final 'tp' SLIGHTLY BEYOND this liquidation pool to catch the overshoot/cascade effect.\n`;
+      
       }
   
       const r = await fetch("/chat", {
@@ -348,5 +352,6 @@ function updateSessionClock() {
 setInterval(updateSessionClock, 1000);
 // Sayfa yüklenir yüklenmez ilk çağrıyı yap
 document.addEventListener("DOMContentLoaded", updateSessionClock);
+
 
 
