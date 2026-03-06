@@ -221,11 +221,7 @@
           promptText += `User 1H Liquidation Map data:\n`;
           if (upperLiq !== "") promptText += `- Upper Pool: ${upperLiq}\n`;
           if (lowerLiq !== "") promptText += `- Lower Pool: ${lowerLiq}\n`;
-          
-          promptText += `\nINSTRUCTION: CRITICAL STOP-LOSS OVERHAUL!\n`;
-          promptText += `1. SL (Stop Loss): DO NOT place 'sl' based on ATR alone. It must be placed ABOVE the nearest major resistance/Supertrend (for SHORT) or BELOW the nearest support (for LONG). For this trade, Supertrend is at 72253. Placing 'sl' at 71200 is too risky. Ensure 'sl' is outside the immediate "Noise Zone".\n`;
-          promptText += `2. TP Strategy: 'partial_tp' at the liquidation pool. Final 'tp' beyond the pool for the cascade.\n`;
-          promptText += `3. DYNAMICS: If the gap between Entry and SL is too small (< 1.5x ATR), widen the SL to a major structural level to prevent being 'wicked out'.\n`;
+          promptText += `\nINSTRUCTION: If LONG, set 'tp' slightly below ${upperLiq || "the upper pool"}. If SHORT, set 'tp' slightly above ${lowerLiq || "the lower pool"}. Adjust 'sl' for RR >= 1.5.\n`;
       }
   
       const r = await fetch("/chat", {
@@ -352,7 +348,6 @@ function updateSessionClock() {
 setInterval(updateSessionClock, 1000);
 // Sayfa yüklenir yüklenmez ilk çağrıyı yap
 document.addEventListener("DOMContentLoaded", updateSessionClock);
-
 
 
 
