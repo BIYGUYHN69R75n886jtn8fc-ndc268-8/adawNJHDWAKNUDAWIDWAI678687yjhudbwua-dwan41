@@ -223,12 +223,15 @@
       const upperLiq = document.getElementById('upper-liq') ? document.getElementById('upper-liq').value.trim() : "";
       const lowerLiq = document.getElementById('lower-liq') ? document.getElementById('lower-liq').value.trim() : "";
       
-      if (upperLiq !== "" || lowerLiq !== "") {
-          promptText += `\n\n💧 LIQUIDITY HEATMAP DATA (TARGETING ONLY):\n`;
-          promptText += `User 1H Liquidation Map data:\n`;
+     if (upperLiq !== "" || lowerLiq !== "") {
+          promptText += `\n\n💧 SMART MONEY LIQUIDITY DATA:\n`;
+          promptText += `User High-Timeframe Liquidation Pools:\n`;
           if (upperLiq !== "") promptText += `- Upper Pool: ${upperLiq}\n`;
           if (lowerLiq !== "") promptText += `- Lower Pool: ${lowerLiq}\n`;
-          promptText += `\nCRITICAL RULE: DO NOT let these liquidity pools dictate the trade direction (LONG/SHORT). The direction MUST be strictly driven by the Hardcoded Score. Use these pools ONLY for placing TP and SL. For example, if the score is overwhelmingly Bullish, DO NOT give a SHORT signal just because a Lower Pool is provided.\n`;
+          promptText += `\nCRITICAL SURVIVAL RULES FOR TP/SL:\n`;
+          promptText += `1. FRONT-RUN TARGETS: Market makers sweep these pools. To ensure fills, place the TP *slightly before* the target pool (e.g., if LONG, TP just below Upper Pool; if SHORT, TP just above Lower Pool).\n`;
+          promptText += `2. STOP HUNT KEVLAR (SL BUFFER): Retail places stops exactly ON the pools and gets liquidated by wicks. You MUST place the SL significantly *BEYOND* the opposing liquidity pool. Use the current ATR value in the data above as a mathematical buffer distance to survive sudden sweeps.\n`;
+          promptText += `3. DO NOT let these pools dictate the LONG/SHORT direction. Follow the Hardcoded Bull/Bear Score for direction.\n`;
       }
   
       const r = await fetch("/chat", {
