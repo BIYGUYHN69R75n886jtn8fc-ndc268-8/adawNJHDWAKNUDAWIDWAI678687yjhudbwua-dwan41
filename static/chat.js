@@ -224,11 +224,11 @@
       const lowerLiq = document.getElementById('lower-liq') ? document.getElementById('lower-liq').value.trim() : "";
       
       if (upperLiq !== "" || lowerLiq !== "") {
-          promptText += `\n\n🚨 COMMANDER OVERRIDE INTELLIGENCE:\n`;
+          promptText += `\n\n💧 LIQUIDITY HEATMAP DATA (TARGETING ONLY):\n`;
           promptText += `User 1H Liquidation Map data:\n`;
           if (upperLiq !== "") promptText += `- Upper Pool: ${upperLiq}\n`;
           if (lowerLiq !== "") promptText += `- Lower Pool: ${lowerLiq}\n`;
-          promptText += `\nINSTRUCTION: If LONG, set 'tp' slightly below ${upperLiq || "the upper pool"}. If SHORT, set 'tp' slightly above ${lowerLiq || "the lower pool"}. Adjust 'sl' for RR >= 1.5.\n`;
+          promptText += `\nCRITICAL RULE: DO NOT let these liquidity pools dictate the trade direction (LONG/SHORT). The direction MUST be strictly driven by the Hardcoded Score. Use these pools ONLY for placing TP and SL. For example, if the score is overwhelmingly Bullish, DO NOT give a SHORT signal just because a Lower Pool is provided.\n`;
       }
   
       const r = await fetch("/chat", {
