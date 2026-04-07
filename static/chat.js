@@ -42,7 +42,7 @@
       } catch { return "N/A"; }
     }
 
-    // 🔥 TIER-1 HEDGE FUND DETERMINISTIC ENGINE (FULL 15-INDICATOR SYNTHESIS) 🔥
+    // 🔥 TIER-1 HEDGE FUND DETERMINISTIC ENGINE (WEIGHTED SCORING v2.0) 🔥
     function calculateHardMath(values, currentPriceStr) {
         let p = parseFloat(currentPriceStr);
         let bull = 0, bear = 0, neutral = 0;
@@ -50,82 +50,89 @@
 
         const parseVal = (str) => parseFloat((str || "").replace(/[^0-9.-]/g, ''));
 
-        // 1. RSI
-        let rsi = parseVal(values.RSI);
-        if (!isNaN(rsi)) { if (rsi <= 30) bull++; else if (rsi >= 70) bear++; else neutral++; }
+        // 🔥 PROFESYONEL AĞIRLIKLANDIRMA ÇARPANLARI
+        const W_VOLUME = 3;   // Akıllı Para & Hacim
+        const W_TREND = 2;    // Ana Trend Yönü
+        const W_MOMENTUM = 1; // Kısa Vadeli Osilatörler
 
-        // 2. MFI
-        let mfi = parseVal(values.MFI);
-        if (!isNaN(mfi)) { if (mfi <= 20) bull++; else if (mfi >= 80) bear++; else neutral++; }
-
-        // 3. CCI
-        let cci = parseVal(values.CCI);
-        if (!isNaN(cci)) { if (cci <= -100) bull++; else if (cci >= 100) bear++; else neutral++; }
-
-        // 4. STOCH
-        if (values.STOCH && values.STOCH.includes('/')) {
-            let parts = values.STOCH.split('/');
-            let k = parseVal(parts[0]), d = parseVal(parts[1]);
-            if (k <= 20 && d <= 20) bull++; else if (k >= 80 && d >= 80) bear++; else neutral++;
-        }
-
-        // 5. BBANDS
-        if (values.BBANDS && values.BBANDS.includes('/')) {
-            let parts = values.BBANDS.split('/');
-            let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
-            if (p <= lower) bull++; else if (p >= upper) bear++; else neutral++;
-        }
-
-        // 6. KELTNER
-        if (values.KELTNER && values.KELTNER.includes('|')) {
-            let parts = values.KELTNER.split('|');
-            let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
-            if (p <= lower) bull++; else if (p >= upper) bear++; else neutral++;
-        }
-
-        // 7. MACD
-        let macd = parseVal(values.MACD);
-        if (!isNaN(macd)) { if (macd > 0) bull++; else if (macd < 0) bear++; else neutral++; }
-
-        // 8. EMA
-        let ema = parseVal(values.EMA);
-        if (!isNaN(ema)) { if (p > ema) bull++; else if (p < ema) bear++; else neutral++; }
-
-        // 9. VWAP
+        // --- AĞIR SIKLET (HACİM) ---
+        // 1. VWAP
         let vwap = parseVal(values.VWAP);
-        if (!isNaN(vwap)) { if (p > vwap) bull++; else if (p < vwap) bear++; else neutral++; }
+        if (!isNaN(vwap)) { if (p > vwap) bull += W_VOLUME; else if (p < vwap) bear += W_VOLUME; else neutral++; }
 
-        // 10. SAR
-        let sar = parseVal(values.SAR);
-        if (!isNaN(sar)) { if (p > sar) bull++; else if (p < sar) bear++; else neutral++; }
+        // 2. OBV
+        let obv = parseVal(values.OBV);
+        if (!isNaN(obv)) { if (obv > 0) bull += W_VOLUME; else if (obv < 0) bear += W_VOLUME; else neutral++; } else { neutral++; }
 
-        // 11. SUPERTREND
+        // --- ORTA SIKLET (TREND) ---
+        // 3. EMA
+        let ema = parseVal(values.EMA);
+        if (!isNaN(ema)) { if (p > ema) bull += W_TREND; else if (p < ema) bear += W_TREND; else neutral++; }
+
+        // 4. SUPERTREND
         let st = parseVal(values.Supertrend);
-        if (!isNaN(st)) { if (p > st) bull++; else if (p < st) bear++; else neutral++; }
+        if (!isNaN(st)) { if (p > st) bull += W_TREND; else if (p < st) bear += W_TREND; else neutral++; }
 
-        // 12. ICHIMOKU
+        // 5. MACD
+        let macd = parseVal(values.MACD);
+        if (!isNaN(macd)) { if (macd > 0) bull += W_TREND; else if (macd < 0) bear += W_TREND; else neutral++; }
+
+        // 6. ICHIMOKU
         if (values.ICHIMOKU && values.ICHIMOKU.includes('|')) {
             let parts = values.ICHIMOKU.split('|');
             let tenkan = parseVal(parts[0]), kijun = parseVal(parts[1]);
-            if (p > tenkan && p > kijun) bull++; else if (p < tenkan && p < kijun) bear++; else neutral++;
+            if (p > tenkan && p > kijun) bull += W_TREND; else if (p < tenkan && p < kijun) bear += W_TREND; else neutral++;
         }
 
-        // 13. ADX
+        // 7. SAR
+        let sar = parseVal(values.SAR);
+        if (!isNaN(sar)) { if (p > sar) bull += W_TREND; else if (p < sar) bear += W_TREND; else neutral++; }
+
+        // 8. ADX (Sadece momentum onayı olarak kullanıyoruz)
         let adx = parseVal(values.ADX);
-        let currentEma = parseVal(values.EMA);
-        if (!isNaN(adx) && !isNaN(currentEma)) {
+        if (!isNaN(adx)) {
             if (adx > 25) { 
-                if (p > currentEma) bull++; else if (p < currentEma) bear++; else neutral++; 
+                let currentEma = parseVal(values.EMA);
+                if (p > currentEma) bull += W_TREND; else if (p < currentEma) bear += W_TREND; else neutral++; 
             } else { neutral++; }
         } else { neutral++; }
 
-        // 14. OBV
-        let obv = parseVal(values.OBV);
-        if (!isNaN(obv)) {
-            if (obv > 0) bull++; else if (obv < 0) bear++; else neutral++;
-        } else { neutral++; }
 
-        // 15. ATR
+        // --- HAFİF SIKLET (OSİLATÖR VE BANTLAR) ---
+        // 9. RSI
+        let rsi = parseVal(values.RSI);
+        if (!isNaN(rsi)) { if (rsi <= 30) bull += W_MOMENTUM; else if (rsi >= 70) bear += W_MOMENTUM; else neutral++; }
+
+        // 10. MFI
+        let mfi = parseVal(values.MFI);
+        if (!isNaN(mfi)) { if (mfi <= 20) bull += W_MOMENTUM; else if (mfi >= 80) bear += W_MOMENTUM; else neutral++; }
+
+        // 11. CCI
+        let cci = parseVal(values.CCI);
+        if (!isNaN(cci)) { if (cci <= -100) bull += W_MOMENTUM; else if (cci >= 100) bear += W_MOMENTUM; else neutral++; }
+
+        // 12. STOCH
+        if (values.STOCH && values.STOCH.includes('/')) {
+            let parts = values.STOCH.split('/');
+            let k = parseVal(parts[0]), d = parseVal(parts[1]);
+            if (k <= 20 && d <= 20) bull += W_MOMENTUM; else if (k >= 80 && d >= 80) bear += W_MOMENTUM; else neutral++;
+        }
+
+        // 13. BBANDS
+        if (values.BBANDS && values.BBANDS.includes('/')) {
+            let parts = values.BBANDS.split('/');
+            let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
+            if (p <= lower) bull += W_MOMENTUM; else if (p >= upper) bear += W_MOMENTUM; else neutral++;
+        }
+
+        // 14. KELTNER
+        if (values.KELTNER && values.KELTNER.includes('|')) {
+            let parts = values.KELTNER.split('|');
+            let upper = parseVal(parts[0]), lower = parseVal(parts[1]);
+            if (p <= lower) bull += W_MOMENTUM; else if (p >= upper) bear += W_MOMENTUM; else neutral++;
+        }
+
+        // 15. ATR (Sadece volatilite ölçer, yön belirtmez)
         neutral++;
 
         return { bull, bear, neutral };
