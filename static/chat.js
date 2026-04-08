@@ -161,13 +161,26 @@
         KELTNER: readIndicatorText("keltner"), SAR: readIndicatorText("sar"), VWAP: readIndicatorText("vwap"),
         MFI: readIndicatorText("mfi"), Supertrend: readIndicatorText("supertrend"), CCI: readIndicatorText("cci"),
       };
+      
       const price = await fetchCurrentPrice(coin);
+      const macroEma200 = await fetchDailyMacroTrend(coin); // Günlük Trendi Çek
+      
+      // Makro Trend Durumunu Belirle
+      let macroState = "UNKNOWN";
+      if (macroEma200 !== null && !isNaN(price)) {
+          macroState = parseFloat(price) > macroEma200 ? "BULLISH (Price above 1D EMA 200)" : "BEARISH (Price below 1D EMA 200)";
+      }
 
       window.deterministicScores = calculateHardMath(values, price);
   
       return (
-  `I am now providing you with ${coinName} 1H data:
+  `I am now providing you with ${coinName} 1H execution data:
   Current price: ${price}
+  
+  🌍 MACRO ENVIRONMENT (1D TREND):
+  Daily EMA 200: ${macroEma200 || "N/A"}
+  Macro Trend State: ${macroState}
+  CRITICAL MACRO RULE: Do not fight the Daily Macro Trend easily. If the 1H signal opposes the 1D Macro Trend, you must heavily downgrade the confidence score and strictly limit risk.
   
   RSI: ${values.RSI}
   EMA: ${values.EMA}
