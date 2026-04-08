@@ -103,11 +103,14 @@ def chat():
     LIVE MACRO CONTEXT: {live_news}
     CURRENT TIME: {current_time_utc}
 
-    PROTOCOL:
-    1. RESPECT THE MATH: The Hardcoded Bull/Bear Score is your primary directional bias. DO NOT trade against an overwhelming score (e.g., 16 Bull vs 6 Bear) just to target a user-provided liquidation pool.
-    2. LIQUIDITY FOR TARGETS: Use the user's Liquidation Magnets strictly for optimal Entry, TP, and SL placement within the direction dictated by the trend. 
-    3. Provide Entry, TP, and SL. Provide 'partial_tp' at 50% distance.
-    4. Output HOLD if Confidence < {MIN_CONFIDENCE}%.
+  PROTOCOL:
+    1. THE IRONCLAD ALIGNMENT RULE: Compare the 1H Hardcoded Score direction with the 1D Macro Trend. If they OPPOSE each other (e.g., 1H is Bullish but Daily EMA 200 is Bearish), capital preservation is your #1 priority. You MUST output "HOLD" and state in the 'market_summary' that fighting the macro trend is mathematically negative expectancy. 
+    2. RESPECT THE MATH: Do not trade against an overwhelming score just to target a user-provided liquidation pool. The Hardcoded Score dictates the LONG/SHORT direction.
+    3. SMART MONEY LIQUIDITY (TP/SL): Use the user's Liquidation Magnets strictly for optimal Entry, TP, and SL placement. 
+       - FRONT-RUN TPs: Place TP slightly *before* the target pool to ensure fills.
+       - KEVLAR SL (ATR BUFFER): Place SL significantly *beyond* the opposing pool using the ATR value as a distance buffer to survive stop-hunts (wicks).
+    4. Provide Entry, TP, and SL. Provide 'partial_tp' at 50% distance.
+    5. Output HOLD if Confidence < {MIN_CONFIDENCE}%.
 
     JSON OUTPUT EXACTLY AS BELOW:
     {{
