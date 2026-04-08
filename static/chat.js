@@ -42,6 +42,20 @@
       } catch { return "N/A"; }
     }
 
+    // 🔥 MACRO TREND FILTER (1D EMA 200) 🔥
+    async function fetchDailyMacroTrend(coin) {
+      // 1 Günlük grafikte 200 periyotluk EMA'yı çekiyoruz
+      const url = `https://api.twelvedata.com/ema?apikey=${TWELVE_API_KEY}&symbol=${coin}/USD&interval=1day&time_period=200`;
+      try {
+        const r = await fetch(url);
+        const j = await r.json();
+        if (j && j.values && j.values[0]) {
+            return parseFloat(j.values[0].ema);
+        }
+        return null;
+      } catch { return null; }
+    }
+
     // 🔥 TIER-1 HEDGE FUND DETERMINISTIC ENGINE (WEIGHTED SCORING v2.0) 🔥
     function calculateHardMath(values, currentPriceStr) {
         let p = parseFloat(currentPriceStr);
